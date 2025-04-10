@@ -19,9 +19,14 @@ export const freelancingExperienceSchema = z.object({
 })
 
 // Step 3: Work Type & Skills
-export const workTypeSchema = z.object({
-  freelancerType: z.string().min(1, "Please specify your freelancer type").optional(),
-  skills: z.array(z.string()).min(1, "Please select at least one skill").optional(),
+export const freelancerWorkTypeSchema = z.object({
+  freelancerType: z.string().min(1, "Please specify your freelancer type"),
+  skills: z.array(z.string()).min(1, "Please select at least one skill"),
+})
+
+export const clientWorkTypeSchema = z.object({
+  skills: z.array(z.string()).min(1, "Please select at least one skill"),
+  freelancerType: z.string().optional(),
 })
 
 // Step 4: Skills Details
@@ -41,9 +46,24 @@ export const preferredRateSchema = z.object({
   budget: z.coerce.number().optional(),
 })
 
+// Helper function to validate URLs with flexible input
+const urlSchema = z.string().refine(
+  (value) => {
+    try {
+      // Add protocol if missing
+      const url = /^https?:\/\//i.test(value) ? value : `https://${value}`
+      new URL(url)
+      return true
+    } catch {
+      return false
+    }
+  },
+  { message: "Please enter a valid URL" },
+)
+
 // Step 6: Experience
 export const experienceSchema = z.object({
-  portfolioLinks: z.array(z.string().url("Please enter a valid URL")).optional(),
+  portfolioLinks: z.array(urlSchema).optional(),
   projects: z
     .array(
       z.object({
@@ -99,10 +119,10 @@ export const personalInfoSchema = z.object({
   profilePicture: z.string().optional(),
   socialLinks: z
     .object({
-      linkedIn: z.string().url("Please enter a valid LinkedIn URL").optional().or(z.literal("")),
-      github: z.string().url("Please enter a valid GitHub URL").optional().or(z.literal("")),
-      twitter: z.string().url("Please enter a valid Twitter URL").optional().or(z.literal("")),
-      personalWebsite: z.string().url("Please enter a valid website URL").optional().or(z.literal("")),
+      linkedIn: urlSchema.optional().or(z.literal("")),
+      github: urlSchema.optional().or(z.literal("")),
+      twitter: urlSchema.optional().or(z.literal("")),
+      personalWebsite: urlSchema.optional().or(z.literal("")),
     })
     .optional(),
 })
@@ -123,12 +143,12 @@ export const onboardingSchema = z.object({
 
   // Freelancer specific
   experienceYears: freelancingExperienceSchema.shape.experienceYears,
-  freelancerType: workTypeSchema.shape.freelancerType,
-  skills: workTypeSchema.shape.skills,
+  freelancerType: z.string().optional(),
+  skills: z.array(z.string()).optional(),
   tools: skillsDetailsSchema.shape.tools,
   certifications: skillsDetailsSchema.shape.certifications,
   hourlyRate: preferredRateSchema.shape.hourlyRate,
-  portfolioLinks: experienceSchema.shape.portfolioLinks,
+  portfolioLinks: z.array(urlSchema).optional(),
   projects: experienceSchema.shape.projects,
   education: educationSchema.shape.education,
   workStyle: bioSchema.shape.workStyle,
@@ -146,7 +166,7 @@ export const onboardingSchema = z.object({
 
 export type OnboardingFormValues = z.infer<typeof onboardingSchema>
 
-// Function to get the schema for a specific step
+// Function to get the schema for a specific step based on user type
 export function getStepSchema(step: number, userType?: string) {
   switch (step) {
     case 1:
@@ -154,7 +174,8 @@ export function getStepSchema(step: number, userType?: string) {
     case 2:
       return freelancingExperienceSchema
     case 3:
-      return workTypeSchema
+      // Return different schema based on user type
+      return userType === "freelancer" ? freelancerWorkTypeSchema : clientWorkTypeSchema
     case 4:
       return skillsDetailsSchema
     case 5:

@@ -4,6 +4,7 @@ import type React from "react"
 
 import { createContext, useContext, useState } from "react"
 import { useForm, FormProvider } from "react-hook-form"
+import { z } from "zod"
 import { type OnboardingFormValues, onboardingSchema, getStepSchema } from "../validations/onboarding-schema"
 import { useRouter } from "next/navigation"
 
@@ -53,6 +54,7 @@ export function OnboardingFormProvider({ children }: { children: React.ReactNode
       preferredStartDate: "",
       companyName: "",
       budget: undefined,
+      duration: "",
       socialLinks: {
         linkedIn: "",
         github: "",
@@ -64,25 +66,36 @@ export function OnboardingFormProvider({ children }: { children: React.ReactNode
   })
 
   const nextStep = async () => {
-    // Get the schema for the current step
-    const currentSchema = getStepSchema(step, form.getValues("userType"))
-
-    // Validate only the current step's fields
-    const currentStepData = form.getValues()
-
     try {
-      // Parse the current step data with the current step schema
-      currentSchema.parse(currentStepData)
+      // Get the current user type
+      const userType = form.getValues("userType")
+
+      // Get the schema for the current step based on user type
+      const currentSchema = getStepSchema(step, userType)
+
+      // Get the current form data
+      const currentStepData = form.getValues()
+
+      // Validate the current step data
+      const validationResult = currentSchema.safeParse(currentStepData)
+
+      if (!validationResult.success) {
+        console.error("Validation errors:", validationResult.error.errors)
+
+        // Trigger form validation to show errors
+        await form.trigger()
+        return Promise.reject(validationResult.error)
+      }
 
       // If validation passes, move to the next step
       if (step < totalSteps) {
         setStep(step + 1)
         window.scrollTo(0, 0)
       }
+
       return Promise.resolve()
     } catch (error) {
-      // If validation fails, trigger validation to show errors
-      await form.trigger()
+      console.error("Step validation failed:", error)
       return Promise.reject(error)
     }
   }
@@ -103,26 +116,50 @@ export function OnboardingFormProvider({ children }: { children: React.ReactNode
 
   const completeOnboarding = async () => {
     try {
-      // Validate the entire form data against the complete schema
-      const values = form.getValues()
-      onboardingSchema.parse(values)
+      // Get the current user type
+      const userType = form.getValues("userType")
 
-      // Submit the form data to your API
-      console.log("Form submitted:", values)
+      // Get the form data
+      const formData = form.getValues()
 
-      // Here you would make an API call to save the data
-      // await fetch('/api/onboarding', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(values),
-      // })
+      // Create a modified schema based on user type
+      let finalSchema = onboardingSchema
+
+      if (userType === "client") {
+        // For clients, make freelancer-specific fields optional
+        finalSchema = onboardingSchema.extend({
+          freelancerType: z.string().optional(),
+          experienceYears: z.number().optional(),
+          tools: z.array(z.string()).optional(),
+          hourlyRate: z.number().optional(),
+          workStyle: z.enum(["async", "sync", "agile", "other"]).optional(),
+          availability: z.enum(["part-time", "full-time", "custom"]).optional(),
+        })
+      } else if (userType === "freelancer") {
+        // For freelancers, make client-specific fields optional
+        finalSchema = onboardingSchema.extend({
+          companyName: z.string().optional(),
+          budget: z.number().optional(),
+        })
+      }
+
+      // Validate the form data
+      const validationResult = finalSchema.safeParse(formData)
+
+      if (!validationResult.success) {
+        console.error("Validation errors:", validationResult.error.errors)
+        return Promise.reject(validationResult.error)
+      }
+
+      // Submit the form data
+      console.log("Form submitted:", formData)
 
       // Redirect to the completion page
       router.push("/onboarding/complete")
 
       return Promise.resolve()
     } catch (error) {
-      console.error("Validation error:", error)
+      console.error("Form submission failed:", error)
       return Promise.reject(error)
     }
   }

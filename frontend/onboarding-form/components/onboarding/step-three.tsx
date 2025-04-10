@@ -1,8 +1,10 @@
 "use client"
 
+import React from "react"
+
 import { useOnboardingForm } from "@/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { MultiSelect } from "@/components/ui/multi-select"
 import { useFormContext } from "react-hook-form"
@@ -46,26 +48,86 @@ export function OnboardingStepThree() {
   const form = useFormContext()
   const userType = form.watch("userType")
 
+  // Initialize skills array if it's undefined
+  React.useEffect(() => {
+    if (!form.getValues("skills")) {
+      form.setValue("skills", [])
+    }
+  }, [form])
+
   if (userType === "client") {
     return (
-      <div className="space-y-6">
-        <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-bold">What kind of work do you need?</h2>
-          <p className="text-muted-foreground">Tell us about the skills you're looking for</p>
+      <Form {...form}>
+        <div className="space-y-6">
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl font-bold">What kind of work do you need?</h2>
+            <p className="text-muted-foreground">Tell us about the skills you're looking for</p>
+          </div>
+
+          <FormField
+            control={form.control}
+            name="skills"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Required Skills</FormLabel>
+                <FormControl>
+                  <MultiSelect
+                    placeholder="Select skills..."
+                    options={AVAILABLE_SKILLS}
+                    selected={field.value || []}
+                    onChange={(selected) => field.onChange(selected)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <OnboardingNavigation />
         </div>
+      </Form>
+    )
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+        <div className="space-y-2 text-center">
+          <h2 className="text-2xl font-bold">What kind of work do you do?</h2>
+          <p className="text-muted-foreground">Tell us about your skills and expertise</p>
+        </div>
+
+        <FormField
+          control={form.control}
+          name="freelancerType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Freelancer Type</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="e.g., Web Developer, Designer, Writer"
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}
           name="skills"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Required Skills</FormLabel>
+              <FormLabel>Skills</FormLabel>
               <FormControl>
                 <MultiSelect
                   placeholder="Select skills..."
                   options={AVAILABLE_SKILLS}
                   selected={field.value || []}
-                  onChange={field.onChange}
+                  onChange={(selected) => field.onChange(selected)}
                 />
               </FormControl>
               <FormMessage />
@@ -74,51 +136,7 @@ export function OnboardingStepThree() {
         />
 
         <OnboardingNavigation />
-      </div>
-    )
-  }
-
-  return (
-    <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-      <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">What kind of work do you do?</h2>
-        <p className="text-muted-foreground">Tell us about your skills and expertise</p>
-      </div>
-
-      <FormField
-        control={form.control}
-        name="freelancerType"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Freelancer Type</FormLabel>
-            <FormControl>
-              <Input placeholder="e.g., Web Developer, Designer, Writer" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="skills"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Skills</FormLabel>
-            <FormControl>
-              <MultiSelect
-                placeholder="Select skills..."
-                options={AVAILABLE_SKILLS}
-                selected={field.value || []}
-                onChange={field.onChange}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <OnboardingNavigation />
-    </form>
+      </form>
+    </Form>
   )
 }

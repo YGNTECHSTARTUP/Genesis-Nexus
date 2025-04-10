@@ -16,47 +16,13 @@ export function OnboardingStepSix() {
   const form = useFormContext()
   const userType = form.watch("userType")
   const [portfolioLink, setPortfolioLink] = useState("")
-  const [linkError, setLinkError] = useState("")
-
-  // Function to validate URL
-  const isValidUrl = (urlString: string): boolean => {
-    try {
-      // Add protocol if missing
-      let url = urlString
-      if (!/^https?:\/\//i.test(url)) {
-        url = "https://" + url
-      }
-
-      new URL(url)
-      return true
-    } catch (e) {
-      return false
-    }
-  }
 
   const addPortfolioLink = () => {
-    if (!portfolioLink || portfolioLink.trim() === "") {
-      setLinkError("Please enter a URL")
-      return
+    if (portfolioLink && portfolioLink.trim() !== "") {
+      const currentLinks = form.getValues("portfolioLinks") || []
+      form.setValue("portfolioLinks", [...currentLinks, portfolioLink])
+      setPortfolioLink("")
     }
-
-    // Validate URL
-    let urlToAdd = portfolioLink.trim()
-
-    // Add https:// if no protocol is specified
-    if (!/^https?:\/\//i.test(urlToAdd)) {
-      urlToAdd = "https://" + urlToAdd
-    }
-
-    if (!isValidUrl(urlToAdd)) {
-      setLinkError("Please enter a valid URL")
-      return
-    }
-
-    setLinkError("")
-    const currentLinks = form.getValues("portfolioLinks") || []
-    form.setValue("portfolioLinks", [...currentLinks, urlToAdd])
-    setPortfolioLink("")
   }
 
   const removePortfolioLink = (index: number) => {
@@ -106,27 +72,17 @@ export function OnboardingStepSix() {
 
         <div className="space-y-4">
           <Label htmlFor="portfolioLink">Portfolio Links</Label>
-          <div className="flex flex-col space-y-2">
-            <div className="flex items-center space-x-2">
-              <Input
-                id="portfolioLink"
-                placeholder="https://your-portfolio.com"
-                value={portfolioLink}
-                onChange={(e) => {
-                  setPortfolioLink(e.target.value)
-                  setLinkError("")
-                }}
-                className={linkError ? "border-red-500" : ""}
-              />
-              <Button type="button" size="sm" onClick={addPortfolioLink}>
-                <PlusCircle className="h-4 w-4 mr-2" />
-                Add
-              </Button>
-            </div>
-            {linkError && <p className="text-sm text-red-500">{linkError}</p>}
-            <p className="text-xs text-muted-foreground">
-              Enter a valid URL (e.g., example.com or https://example.com)
-            </p>
+          <div className="flex items-center space-x-2">
+            <Input
+              id="portfolioLink"
+              placeholder="https://your-portfolio.com"
+              value={portfolioLink}
+              onChange={(e) => setPortfolioLink(e.target.value)}
+            />
+            <Button type="button" size="sm" onClick={addPortfolioLink}>
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Add
+            </Button>
           </div>
 
           <div className="space-y-2">

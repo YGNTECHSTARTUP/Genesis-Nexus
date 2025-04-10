@@ -2,8 +2,10 @@
 
 import { useOnboardingForm } from "@/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { MultiSelect } from "@/components/ui/multi-select"
+import { useFormContext } from "react-hook-form"
+import { useEffect } from "react"
 
 // This would typically come from your API
 const AVAILABLE_TOOLS = [
@@ -58,15 +60,60 @@ const AVAILABLE_CERTIFICATIONS = [
 ]
 
 export function OnboardingStepFour() {
-  const { form } = useOnboardingForm()
+  const { nextStep } = useOnboardingForm()
+  const form = useFormContext()
   const userType = form.watch("userType")
+
+  // Initialize arrays if they're undefined
+  useEffect(() => {
+    if (!form.getValues("tools")) {
+      form.setValue("tools", [])
+    }
+    if (!form.getValues("certifications")) {
+      form.setValue("certifications", [])
+    }
+  }, [form])
 
   if (userType === "client") {
     return (
-      <div className="space-y-6">
+      <Form {...form}>
+        <div className="space-y-6">
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl font-bold">Project Requirements</h2>
+            <p className="text-muted-foreground">Tell us about your project needs</p>
+          </div>
+
+          <FormField
+            control={form.control}
+            name="tools"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Preferred Tools</FormLabel>
+                <FormControl>
+                  <MultiSelect
+                    placeholder="Select tools..."
+                    options={AVAILABLE_TOOLS}
+                    selected={field.value || []}
+                    onChange={(selected) => field.onChange(selected)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <OnboardingNavigation />
+        </div>
+      </Form>
+    )
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
         <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-bold">Project Requirements</h2>
-          <p className="text-muted-foreground">Tell us about your project needs</p>
+          <h2 className="text-2xl font-bold">Your Skills Details</h2>
+          <p className="text-muted-foreground">Tell us more about your tools and certifications</p>
         </div>
 
         <FormField
@@ -74,13 +121,32 @@ export function OnboardingStepFour() {
           name="tools"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Preferred Tools</FormLabel>
+              <FormLabel>Tools & Software</FormLabel>
               <FormControl>
                 <MultiSelect
                   placeholder="Select tools..."
                   options={AVAILABLE_TOOLS}
                   selected={field.value || []}
-                  onChange={field.onChange}
+                  onChange={(selected) => field.onChange(selected)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="certifications"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Certifications</FormLabel>
+              <FormControl>
+                <MultiSelect
+                  placeholder="Select certifications..."
+                  options={AVAILABLE_CERTIFICATIONS}
+                  selected={field.value || []}
+                  onChange={(selected) => field.onChange(selected)}
                 />
               </FormControl>
               <FormMessage />
@@ -89,56 +155,7 @@ export function OnboardingStepFour() {
         />
 
         <OnboardingNavigation />
-      </div>
-    )
-  }
-
-  return (
-    <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-      <div className="space-y-2 text-center">
-        <h2 className="text-2xl font-bold">Your Skills Details</h2>
-        <p className="text-muted-foreground">Tell us more about your tools and certifications</p>
-      </div>
-
-      <FormField
-        control={form.control}
-        name="tools"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Tools & Software</FormLabel>
-            <FormControl>
-              <MultiSelect
-                placeholder="Select tools..."
-                options={AVAILABLE_TOOLS}
-                selected={field.value || []}
-                onChange={field.onChange}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="certifications"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Certifications</FormLabel>
-            <FormControl>
-              <MultiSelect
-                placeholder="Select certifications..."
-                options={AVAILABLE_CERTIFICATIONS}
-                selected={field.value || []}
-                onChange={field.onChange}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <OnboardingNavigation />
-    </form>
+      </form>
+    </Form>
   )
 }
