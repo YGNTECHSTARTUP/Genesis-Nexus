@@ -50,43 +50,88 @@ ais.get('/assistant', async (c) => {
       return c.json({ error: "Unexpected stream type" });
     }
   });
-ais.get('/best-three',async (c)=>{
-    const ai = c.get('AIs')
-    const {freelancers,requirement}= await c.req.json();
-    const prompt= `
-    You are an expert recruiter AI. A client provided the following requirement:
-    "${requirement}"Here is a list of freelancers:
-  ${freelancers?.map((f: { name: string; skills: [string]; experience: any; }, i: number) => `${i + 1}. Name: ${f.name}\n   Skills: ${f.skills}\n   Experience: ${f.experience}`).join('\n\n')}
+  ais.post('/best-three', async (c) => {
+    const ai = c.get('AIs');
+    const { freelancers, requirement } = await c.req.json();
   
-  and give the code for as JSON format with the top 3 objects  Return the result in JSON like:
-  {
-    "bestFreelancer": "Name",
-    "reason": "Short explanation why this person is best."
-  }
-  {
-    "bestFreelancer": "Name",
-    "reason": "Short explanation why this person is best."
-  }
-  {
-    "bestFreelancer": "Name",
-    "reason": "Short explanation why this person is best."
-  }
-  `
-  try {
-    const result = await ai.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
-      messages: [{ role: "user", content: prompt }]
-    })
+    if (!freelancers || !Array.isArray(freelancers) || !requirement) {
+      return c.json({ error: 'Missing or invalid freelancers or requirement' }, 400);
+    }
   
-    // const response = result.message?.content || ''
-    // return c.json({ response })
-    return c.json({ response: result });
+    const prompt = `
+  You are an expert recruiter AI. A client provided the following requirement:
+  "${requirement}"
   
-  } catch (err: any) {
-    console.error("AI error:", err)
-    return c.json({ error: "AI call failed", details: err.message || err.toString() }, 500)
+  Here is a list of freelancers:
+  ${freelancers.map((f: { name: string; skills: string[]; experience: string }, i: number) =>
+    `${i + 1}. Name: ${f.name}\n   Skills: ${f.skills.join(', ')}\n   Experience: ${f.experience}`
+  ).join('\n\n')}
+  
+  Based on the above, analyze and return only the top 3 most suitable freelancers as a valid JSON array in the following format:
+  
+  [
+    {
+      "bestFreelancer": "Name",
+      "reason": "Short explanation of why this person is best suited"
+    },
+    {
+      "bestFreelancer": "Name",
+      "reason": "Short explanation"
+    },
+    {
+      "bestFreelancer": "Name",
+      "reason": "Short explanation"
+    }
+  ]
+  
+  Only return the JSON — do not add any commentary or explanation outside the JSON array.
+    `;
+  
+    try {
+      const result = await ai.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
+        messages: [{ role: "user", content: prompt }]
+      });
+  
+      const text = await parseAIResponse(result);
+  
+      try {
+        const parsed = JSON.parse(text);
+        return c.json({ topFreelancers: parsed });
+      } catch (err) {
+        return c.json({ error: "AI did not return valid JSON", raw: text }, 500);
+      }
+  
+    } catch (err: any) {
+      console.error("AI error:", err);
+      return c.json({ error: "AI call failed", details: err.message || err.toString() }, 500);
+    }
+  });
+  
+  // Helper function (renamed)
+  async function parseAIResponse(result: any): Promise<string> {
+    try {
+      if (typeof result?.getReader === 'function') {
+        const reader = result.getReader();
+        const decoder = new TextDecoder();
+        let text = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          text += decoder.decode(value);
+        }
+        return text;
+      }
+  
+      if (result?.response) return result.response;
+      if (typeof result === 'string') return result;
+      if (typeof result === 'object') return JSON.stringify(result, null, 2);
+  
+      return String(result);
+    } catch (err) {
+      return `ERROR_READING_RESPONSE: ${err}`;
+    }
   }
   
-  })
   ais.post('/submit-code', async (c) => {
     const ai = c.get('AIs') // use correct binding name
     const { githubUrl } = await c.req.json()
@@ -152,7 +197,7 @@ ais.get('/best-three',async (c)=>{
     }
     return result
   }
-  ais.post('/generate-proposal', async (c) => {
+  ais.post('/generate-proposal', async (c) => { //return json
     const ai = c.get('AIs')
     const { project, portfolio, tone } = await c.req.json()
   
@@ -164,27 +209,30 @@ ais.get('/best-three',async (c)=>{
       messages: [
         {
           role: 'system',
-          content: `You are a helpful freelancer assistant who writes winning proposals. Keep the tone "${tone || 'professional'}".`,
+          content: `You are a helpful freelancer assistant. Respond only in strict JSON format.`,
         },
         {
           role: 'user',
           content: `
-  A freelancer is aislying to the following project:
+  Write a personalized, concise, and compelling proposal for this freelancer.
   
-  ---
+  Return in this format:
+  {
+    "proposal": "Your proposal here"
+  }
+  
+  Project:
   ${project}
-  ---
   
-  Here is the freelancer's portfolio:
+  Portfolio:
   ${portfolio}
   
-  Write a personalized, concise, and compelling proposal to submit.
-          `,
+  Tone: "${tone || 'professional'}"
+          `
         }
       ]
     })
   
-    // Handle response
     let text = ''
     if (result instanceof ReadableStream) {
       const reader = result.getReader()
@@ -200,8 +248,19 @@ ais.get('/best-three',async (c)=>{
       text = JSON.stringify(result)
     }
   
-    return c.json({ proposal: text })
+    // Try to parse JSON from AI
+    try {
+      const parsed = JSON.parse(text)
+      if (parsed.proposal) {
+        return c.json(parsed)
+      } else {
+        return c.json({ error: 'Missing "proposal" field in AI response', raw: text }, 400)
+      }
+    } catch (err) {
+      return c.json({ error: 'AI returned invalid JSON', raw: text }, 400)
+    }
   })
+  //return json
 export async function readAIResponse(result: any): Promise<string> {
     try {
       if (typeof result?.getReader === 'function') {
@@ -245,7 +304,6 @@ export async function readAIResponse(result: any): Promise<string> {
   
     return updatedTasks
   }
-  
   ais.post('/estimate-tasks', async (c) => {
     const ai = c.get('AIs')
     const { project, experienceLevel, startDate } = await c.req.json()
@@ -332,4 +390,5 @@ export async function readAIResponse(result: any): Promise<string> {
       return c.json({ error: 'AI returned invalid JSON', raw: text }, 500)
     }
   })
-export default ais
+
+export default ais;
