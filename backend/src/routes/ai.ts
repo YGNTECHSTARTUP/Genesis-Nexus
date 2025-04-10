@@ -14,14 +14,14 @@ declare module "hono"  {
     await next();
   })
 ais.get('/assistant', async (c) => {
-
+      const content=c.req.query();
     const ai = c .get('AIs')
   
     const messages = [
       { role: 'system', content: 'You are a friendly assistant to help freelancer ' },
       {
         role: 'user',
-        content: 'What are the trending technologies now',
+        content: `${content}`,
       },
     ];
   
@@ -314,14 +314,18 @@ export async function readAIResponse(result: any): Promise<string> {
       messages: [
         {
           role: 'system',
-          content: `You are a project planning assistant. Break the given project into tasks and estimate the time required. 
-  Return only raw JSON in this format:
-  [
-    { "task": "Do something", "durationDays": 2 },
-    ...
-  ]
-  
-  Assume the freelancer has ${experienceLevel || 'mid-level'} experience.`
+          content: `You are a project planning assistant.
+
+          Return ONLY valid JSON, strictly formatted as:
+          [
+            { "task": "Task 1", "durationDays": 2 },
+            ...
+          ]
+          
+          Do NOT include explanations, headers, or comments. Just raw JSON.
+          Assume the freelancer is ${experienceLevel || 'mid-level'}.
+          `
+          
         },
         {
           role: 'user',
@@ -331,10 +335,16 @@ export async function readAIResponse(result: any): Promise<string> {
     })
   
     // Read result (handle streaming or direct response)
-    let text=readAIResponse(result);
+    
+
+    
+    let text = await readAIResponse(result);
+
+
   
     try {
-      const parsed = JSON.parse(await text);
+      console.log('RAW AI response:', text);
+      const parsed = JSON.parse( await text);
       const baseDate = startDate || new Date().toISOString().split('T')[0]
       const timeline = addTimeline(parsed, baseDate)
       return c.json({ tasks: timeline })
@@ -361,7 +371,7 @@ export async function readAIResponse(result: any): Promise<string> {
   
   User type: ${userType.toUpperCase()}
   
-  Analyze the following behavioral data and return:
+  Analyze the following behavioral data and Return ONLY valid JSON, strictly formatted as:
   {
     "trustScore": number (0 to 100),
     "explanation": string (summary of why they received this score)
