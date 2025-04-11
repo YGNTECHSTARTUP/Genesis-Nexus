@@ -5,7 +5,7 @@ import user from './routes/user';
 
 
 const app = new Hono()
-app.route('/user',indes)
+app.route('/user',user)
 app.route('/ai',ais);
 
 app.get('/', (c) => {

@@ -1,5 +1,8 @@
 import { Hono } from 'hono'
 import { env } from 'hono/adapter'
+import { clients, freelancers, freelancerSkills, skills, users } from '../schema';
+import { eq } from 'drizzle-orm';
+import { db } from '../db';
 
 const ais = new Hono()
 
@@ -15,7 +18,7 @@ declare module "hono"  {
   })
 ais.get('/assistant', async (c) => {
       const content=c.req.query();
-    const ai = c .get('AIs')
+    const ai = c.get('AIs')
   
     const messages = [
       { role: 'system', content: 'You are a friendly assistant to help freelancer ' },
@@ -51,20 +54,54 @@ ais.get('/assistant', async (c) => {
     }
   });
   ais.post('/best-three', async (c) => {
-    const ai = c.get('AIs');
-    const { freelancers, requirement } = await c.req.json();
+    const ai = c.get('AIs'); // AI instance
   
-    if (!freelancers || !Array.isArray(freelancers) || !requirement) {
-      return c.json({ error: 'Missing or invalid freelancers or requirement' }, 400);
+    const { requirement } = await c.req.json();
+  
+    if (!requirement) {
+      return c.json({ error: 'Requirement is missing' }, 400);
     }
   
-    const prompt = `
+    try {
+      // Step 1: Fetch all freelancers
+      const freelancerUsers = await db.select().from(users).where(eq(users.userType, 'freelancer'));
+      const freelancerData = await db.select().from(freelancers);
+  
+      // Step 2: Fetch freelancer skills
+      const skillMap = await db
+        .select({
+          userId: freelancerSkills.userId,
+          skillName: skills.name,
+        })
+        .from(freelancerSkills)
+        .leftJoin(skills, eq(freelancerSkills.skillId, skills.id));
+  
+      const skillsByUser: Record<string, string[]> = {};
+      skillMap.forEach(({ userId, skillName }) => {
+        if (!userId) return; // skip null or undefined
+      
+        if (!skillsByUser[userId]) skillsByUser[userId] = [];
+        skillsByUser[userId].push(skillName as '');
+      });
+  
+      // Step 3: Combine all data
+      const freelancer = freelancerUsers.map((user) => {
+        const details = freelancerData.find((f) => f.userId === user.id);
+        return {
+          name: user.fullName,
+          skills: skillsByUser[user.id] || [],
+          experience: `${details?.experienceYears || 0} years`,
+        };
+      });
+  
+      // Step 4: Generate prompt
+      const prompt = `
   You are an expert recruiter AI. A client provided the following requirement:
   "${requirement}"
   
   Here is a list of freelancers:
-  ${freelancers.map((f: { name: string; skills: string[]; experience: string }, i: number) =>
-    `${i + 1}. Name: ${f.name}\n   Skills: ${f.skills.join(', ')}\n   Experience: ${f.experience}`
+  ${freelancer.map((f, i) =>
+    `${i + 1}. Name: ${f.name}\n   Skills: ${f.skills.join(', ') || 'None'}\n   Experience: ${f.experience}`
   ).join('\n\n')}
   
   Based on the above, analyze and return only the top 3 most suitable freelancers as a valid JSON array in the following format:
@@ -72,40 +109,34 @@ ais.get('/assistant', async (c) => {
   [
     {
       "bestFreelancer": "Name",
-      "reason": "Short explanation of why this person is best suited"
-    },
-    {
-      "bestFreelancer": "Name",
       "reason": "Short explanation"
     },
-    {
-      "bestFreelancer": "Name",
-      "reason": "Short explanation"
-    }
+    ...
   ]
   
   Only return the JSON — do not add any commentary or explanation outside the JSON array.
-    `;
+  `;
   
-    try {
-      const result = await ai.run("@cf/meta/llama-3.3-70b-instruct-fp8-fast", {
-        messages: [{ role: "user", content: prompt }]
+      // Step 5: Run AI
+      const result = await ai.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+        messages: [{ role: 'user', content: prompt }],
       });
   
-      const text = await parseAIResponse(result);
+      const rawText = await parseAIResponse(result);
   
       try {
-        const parsed = JSON.parse(text);
+        const parsed = JSON.parse(rawText);
         return c.json({ topFreelancers: parsed });
       } catch (err) {
-        return c.json({ error: "AI did not return valid JSON", raw: text }, 500);
+        return c.json({ error: 'AI did not return valid JSON', raw: rawText }, 500);
       }
   
     } catch (err: any) {
-      console.error("AI error:", err);
-      return c.json({ error: "AI call failed", details: err.message || err.toString() }, 500);
+      console.error('AI error:', err);
+      return c.json({ error: 'AI call failed', details: err.message || err.toString() }, 500);
     }
   });
+  
   
   // Helper function (renamed)
   async function parseAIResponse(result: any): Promise<string> {
@@ -353,20 +384,52 @@ export async function readAIResponse(result: any): Promise<string> {
     }
   })
   ais.post('/generate-trust-score', async (c) => {
-    const ai = c.get('AIs') // Assumes AI instance is injected via middleware
+    const ai = c.get('AIs');
   
-    const body = await c.req.json()
-    const { userType, ...userProfile } = body
+    const body = await c.req.json();
+    const { userType, userId } = body;
   
     if (!userType || (userType !== 'client' && userType !== 'freelancer')) {
-      return c.json({ error: 'Invalid or missing userType (must be "client" or "freelancer")' }, 400)
+      return c.json({ error: 'Invalid or missing userType (must be "client" or "freelancer")' }, 400);
     }
   
-    if (!userProfile || Object.keys(userProfile).length === 0) {
-      return c.json({ error: 'Missing user profile data' }, 400)
+    if (!userId) {
+      return c.json({ error: 'Missing userId' }, 400);
     }
   
-    const prompt = `
+    try {
+      let userProfile;
+  
+      if (userType === 'freelancer') {
+        // JOIN freelancer + user base profile
+        const [freelancerData] = await db
+          .select()
+          .from(freelancers)
+          .innerJoin(users, eq(freelancers.userId, users.id))
+          .where(eq(freelancers.userId, userId));
+  
+        if (!freelancerData) return c.json({ error: 'Freelancer not found' }, 404);
+  
+        userProfile = {
+          ...freelancerData.users,
+          ...freelancerData.freelancers,
+        };
+      } else if (userType === 'client') {
+        const [clientData] = await db
+          .select()
+          .from(clients)
+          .innerJoin(users, eq(clients.userId, users.id))
+          .where(eq(clients.userId, userId));
+  
+        if (!clientData) return c.json({ error: 'Client not found' }, 404);
+  
+        userProfile = {
+          ...clientData.users,
+          ...clientData.clients,
+        };
+      }
+  
+      const prompt = `
   You are a trust score evaluator for a freelancing platform.
   
   User type: ${userType.toUpperCase()}
@@ -382,23 +445,28 @@ export async function readAIResponse(result: any): Promise<string> {
   
   DATA:
   ${JSON.stringify(userProfile, null, 2)}
-  `
+  `;
   
-    const result = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
-      messages: [
-        { role: 'system', content: 'You are an expert reputation evaluator.' },
-        { role: 'user', content: prompt }
-      ]
-    })
+      const result = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
+        messages: [
+          { role: 'system', content: 'You are an expert reputation evaluator.' },
+          { role: 'user', content: prompt },
+        ],
+      });
   
-    const text = await readAIResponse(result)
+      const text = await readAIResponse(result);
   
-    try {
-      const parsed = JSON.parse(text)
-      return c.json(parsed)
+      try {
+        const parsed = JSON.parse(text);
+        return c.json(parsed);
+      } catch (err) {
+        return c.json({ error: 'AI returned invalid JSON', raw: text }, 500);
+      }
     } catch (err) {
-      return c.json({ error: 'AI returned invalid JSON', raw: text }, 500)
+      console.error('[TrustScore Error]', err);
+      return c.json({ error: 'Server error while generating trust score' }, 500);
     }
-  })
+  });
+  
 
 export default ais;
