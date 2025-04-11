@@ -12,7 +12,7 @@ import {
   pgEnum,
   boolean,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+// import { relations } from "drizzle-orm";
 
 // Enums
 export const userTypeEnum = pgEnum("user_type", ["freelancer", "client"]);
@@ -75,14 +75,20 @@ export const skills = pgTable("skills", {
 });
 
 // Freelancer Skills (Join Table)
-export const freelancerSkills = pgTable("freelancer_skills", {
-  userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
-  skillId: integer("skill_id").references(() => skills.id, {
-    onDelete: "cascade",
-  }),
-}, (t) => ({
-  pk: primaryKey(t.userId, t.skillId),
-}));
+export const freelancerSkills = pgTable(
+  "freelancer_skills",
+  {
+    userId: uuid("user_id").notNull().references(() => users.id, {
+      onDelete: "cascade",
+    }),
+    skillId: integer("skill_id").notNull().references(() => skills.id, {
+      onDelete: "cascade",
+    }),
+  },
+  (t) => ({
+    pk: primaryKey(t.userId, t.skillId),
+  })
+);
 
 // Freelancers
 export const freelancers = pgTable("freelancers", {
@@ -136,4 +142,45 @@ export const trustScores = pgTable("trust_scores", {
   userId: uuid("user_id").primaryKey().references(() => users.id, { onDelete: "cascade" }),
   score: numeric("score").default("0"),
   calculatedAt: timestamp("calculated_at", { withTimezone: true }).defaultNow(),
+});
+
+export const reviews = pgTable("reviews", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  reviewerId: uuid("reviewer_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  revieweeId: uuid("reviewee_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  rating: integer("rating").notNull(), // from 1 to 5
+  comment: text("comment"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+// Requests (Client to Freelancer)
+export const requests = pgTable("requests", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  clientId: uuid("client_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  freelancerId: uuid("freelancer_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  projectId: uuid("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  message: text("message"),
+  status: text("status").default("pending"), // could convert this to an enum if needed
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+export const projectTimelines = pgTable("project_timelines", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  projectId: uuid("project_id")
+    .notNull()
+    .references(() => projects.id, { onDelete: "cascade" }),
+  task: text("task").notNull(),
+  durationDays: integer("duration_days").notNull(),
+  startDate: date("start_date").notNull(),
+  endDate: date("end_date").notNull(),
 });
