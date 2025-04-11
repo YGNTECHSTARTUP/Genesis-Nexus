@@ -17,20 +17,23 @@ declare module "hono"  {
     await next();
   })
 ais.get('/assistant', async (c) => {
-      const content=c.req.query();
+      const content=c.req.query('q');
     const ai = c.get('AIs')
   
     const messages = [
-      { role: 'system', content: 'You are a friendly assistant to help freelancer ' },
+      { role: 'system', content:'You are a helpful and friendly AI assistant who gives accurate and clear responses.'},
       {
         role: 'user',
         content: `${content}`,
       },
     ];
   
-    const stream = await ai.run("@cf/deepseek-ai/deepseek-r1-distill-qwen-32b", {
+    const stream = await ai.run("@hf/thebloke/openhermes-2.5-mistral-7b-awq", {
       messages,
-      stream: true,
+      temperature: 0.3,
+  top_p: 0.9,
+  stream: true,
+
     });
   
     if (stream instanceof ReadableStream) {

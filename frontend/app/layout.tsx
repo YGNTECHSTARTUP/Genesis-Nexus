@@ -1,5 +1,16 @@
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+// import { useEffect } from "react";
+import {
+  useUser,
+  ClerkProvider,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from '@clerk/nextjs'
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,13 +33,31 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { isSignedIn, user } = useUser();
+//   // const [appUser, setAppUser] = useState(null);
+//   // useEffect(()=>{
+  if(isSignedIn && user){
+    console.log(user.id);
+    // setAppUser(data.user)
+  }
+// // },[user,isSignedIn])
   return (
+    <ClerkProvider>
     <html lang="en">
+      
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      ><SignedOut>
+      <SignInButton/>
+      <SignUpButton/>
+    </SignedOut>
+    <SignedIn>
+        <UserButton/>
         {children}
+        </SignedIn>
       </body>
+      
     </html>
+    </ClerkProvider>
   );
 }
