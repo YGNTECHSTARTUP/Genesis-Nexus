@@ -2,7 +2,7 @@ import {Hono} from 'hono'
 // import {authMiddleware} from '../middleware/auth';
 // devAuthMiddleware
 import { db } from '../db';
-import { users, freelancers, clients ,projects} from '../schema';
+import { users, freelancers, clients ,projects, requests, reviews, projectTimelines} from '../schema';
 import type { User } from '@clerk/backend';
 import { eq } from 'drizzle-orm';
 import { devAuthMiddleware } from '../middleware/newAuth';
@@ -187,5 +187,111 @@ user.post('/project', async (c) => {
       return c.json({ error: 'Project creation failed' }, 500);
     }
   });
+  user.get('/projects', async (c) => {
+    const user = c.get('authUser') as User;
+    const clientId = user.id;
+  
+    try {
+      const userProjects = await db
+        .select()
+        .from(projects)
+        .where(eq(projects.clientId, clientId));
+  
+      return c.json({ projects: userProjects });
+    } catch (err) {
+      console.error('[Get Projects Error]', err);
+      return c.json({ error: 'Failed to fetch projects' }, 500);
+    }
+  });
+  
+  user.post('/requests', async (c) => {
+  
+    const { clientId, freelancerId, projectId, message } = await c.req.json()
+  
+    if (!clientId || !freelancerId || !projectId) {
+      return c.json({ error: 'Missing required fields' }, 400)
+    }
+  
+    const result = await db.insert(requests).values({
+      clientId,
+      freelancerId,
+      projectId,
+      message,
+    }).returning()
+  
+    return c.json({ success: true, request: result[0] })
+  })
+  user.get('/requests/:clientId', async (c) => {
+    // const db = c.get('db')
+    const clientId = c.req.param('clientId')
+  
+    if (!clientId) return c.json({ error: 'Missing client ID' }, 400)
+  
+    const result = await db.select().from(requests).where(eq(requests.clientId, clientId))
+  
+    return c.json({ requests: result })
+  })
+  user.post('/review',async(c)=>{
+
+  })
+  user.post('/reviews', async (c) => {
+  
+    const { reviewerId, revieweeId, rating, comment } = await c.req.json()
+  
+    if (!reviewerId || !revieweeId || !rating) {
+      return c.json({ error: 'Missing required fields' }, 400)
+    }
+  
+    if (reviewerId === revieweeId) {
+      return c.json({ error: 'You cannot review yourself' }, 400)
+    }
+  
+    if (rating < 1 || rating > 5) {
+      return c.json({ error: 'Rating must be between 1 and 5' }, 400)
+    }
+  
+    const result = await db.insert(reviews).values({
+      reviewerId,
+      revieweeId,
+      rating,
+      comment,
+    }).returning()
+  
+    return c.json({ success: true, review: result[0] })
+  })
+  user.get('/reviews/:userId', async (c) => {
+    // const db = c.get('db')
+    const userId = c.req.param('userId')
+  
+    if (!userId) return c.json({ error: 'Missing user ID' }, 400)
+  
+    const result = await db
+      .select()
+      .from(reviews)
+      .where(eq(reviews.revieweeId, userId))
+  
+    return c.json({ reviews: result })
+  })
+  user.get('/timeline/:projectId', async (c) => {
+    const projectId = c.req.param('projectId');
+  
+    if (!projectId) {
+      return c.json({ error: 'Project ID is required' }, 400);
+    }
+  
+    try {
+      const timeline = await db
+        .select()
+        .from(projectTimelines)
+        .where(eq(projectTimelines.projectId, projectId))
+        .orderBy(projectTimelines.startDate); // optional: to keep timeline sorted
+  
+      return c.json({ tasks: timeline });
+    } catch (error) {
+      console.error('Error fetching timeline:', error);
+      return c.json({ error: 'Failed to fetch timeline', details: error }, 500);
+    }
+  });
+  
   
 export default user;

@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { env } from 'hono/adapter'
-import { clients, freelancers, freelancerSkills, skills, users } from '../schema';
+import { clients, freelancers, freelancerSkills, projectTimelines, skills, users } from '../schema';
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
 
@@ -338,54 +338,77 @@ export async function readAIResponse(result: any): Promise<string> {
   
     return updatedTasks
   }
-  ais.post('/estimate-tasks', async (c) => {
-    const ai = c.get('AIs')
-    const { project, experienceLevel, startDate } = await c.req.json()
+  export async function saveProjectTimeline(projectId: string, timeline: any[]) {
+    try {
+      const validTasks = timeline.filter(t => t.task && t.durationDays && t.startDate && t.endDate);
   
-    if (!project) return c.json({ error: 'Project description is required.' }, 400)
+      const rows: {
+        projectId: string;
+        task: any;
+        durationDays: any;
+        startDate: Date;
+        endDate: Date;
+    }[] = validTasks.map((t) => ({
+        projectId,
+        task: t.task,
+        durationDays: t.durationDays,
+        startDate: new Date(t.startDate),
+        endDate: new Date(t.endDate),
+      }));
+  
+      await db.insert(projectTimelines).values(rows as []);
+      return { success: true };
+    } catch (error) {
+      console.error('Error saving timeline:', error);
+      return { success: false, error };
+    }
+  }
+  ais.post('/generate-timeline', async (c) => {
+    const ai = c.get('AIs');
+    const { project, experienceLevel, startDate, projectId } = await c.req.json();
+  
+    if (!project || !projectId) {
+      return c.json({ error: 'Project description and projectId are required.' }, 400);
+    }
   
     const result = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
       messages: [
         {
           role: 'system',
           content: `You are a project planning assistant.
-
-          Return ONLY valid JSON, strictly formatted as:
-          [
-            { "task": "Task 1", "durationDays": 2 },
-            ...
-          ]
-          
-          Do NOT include explanations, headers, or comments. Just raw JSON.
-          Assume the freelancer is ${experienceLevel || 'mid-level'}.
-          `
-          
+  Return ONLY valid JSON, strictly formatted as:
+  [
+    { "task": "Task 1", "durationDays": 2 },
+    ...
+  ]
+  Do NOT include explanations, headers, or comments. Just raw JSON.
+  Assume the freelancer is ${experienceLevel || 'mid-level'}.`
         },
         {
           role: 'user',
           content: `Project: ${project}`
         }
       ]
-    })
+    });
   
-    // Read result (handle streaming or direct response)
-    
-
-    
-    let text = await readAIResponse(result);
-
-
+    const text = await readAIResponse(result);
   
     try {
-      console.log('RAW AI response:', text);
-      const parsed = JSON.parse( await text);
-      const baseDate = startDate || new Date().toISOString().split('T')[0]
-      const timeline = addTimeline(parsed, baseDate)
-      return c.json({ tasks: timeline })
+      const parsed = JSON.parse(text);
+      const baseDate = startDate || new Date().toISOString().split('T')[0];
+      const timeline = addTimeline(parsed, baseDate);
+  
+      const saveResult = await saveProjectTimeline(projectId, timeline);
+      if (!saveResult.success) {
+        return c.json({ error: 'Failed to save timeline', details: saveResult.error }, 500);
+      }
+  
+      return c.json({ tasks: timeline });
     } catch (e) {
-      return c.json({ error: 'AI returned invalid JSON', raw: text }, 500)
+      return c.json({ error: 'AI returned invalid JSON', raw: text }, 500);
     }
-  })
+  });
+  
   ais.post('/generate-trust-score', async (c) => {
     const ai = c.get('AIs');
   
