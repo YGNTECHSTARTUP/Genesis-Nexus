@@ -8,6 +8,48 @@
       "when": 1744339820621,
       "tag": "0000_yellow_mordo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1744365290607,
+      "tag": "0001_legal_goliath",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1744365443944,
+      "tag": "0002_sparkling_the_captain",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1744365846925,
+      "tag": "0003_certain_vengeance",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1744366226350,
+      "tag": "0004_panoramic_ser_duncan",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1744366324756,
+      "tag": "0005_luxuriant_thanos",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1744366761985,
+      "tag": "0006_heavy_weapon_omega",
+      "breakpoints": true
     }
   ]
 }
