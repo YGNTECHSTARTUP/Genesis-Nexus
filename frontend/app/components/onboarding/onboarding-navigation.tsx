@@ -34,7 +34,7 @@ export function OnboardingNavigation() {
     setIsSubmitting(true)
     try {
       await completeOnboarding()
-    } catch (error:unknown) {
+    } catch (error:any) {
       console.error("Form submission failed:", error)
 
       // Show a toast with the validation error
