@@ -215,7 +215,7 @@ export function OnboardingFormProvider({ children }: { children: React.ReactNode
       }
 
       // Submit the form data to the API
-      const response = await fetch("https://backend.eevanasivabalaji.workers.dev/user/reviews", {
+      const response = await fetch("https://backend.eevanasivabalaji.workers.dev/user/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
