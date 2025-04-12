@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Wallet, FileText, Users, Shield, Cpu, BarChart } from "lucide-react"
+import { Wallet, FileText, Users,  } from "lucide-react"
 
 // This would be replaced with a proper D3.js implementation in a real project
 const ForceGraph = () => {
@@ -117,21 +117,7 @@ const ecosystemComponents = [
     description: "Self-sovereign identity verification and reputation system.",
     icon: Users,
   },
-  {
-    title: "Security Layer",
-    description: "Multi-signature transactions and fraud prevention mechanisms.",
-    icon: Shield,
-  },
-  {
-    title: "AI Engine",
-    description: "Machine learning for matching, recommendations, and assistance.",
-    icon: Cpu,
-  },
-  {
-    title: "Analytics Platform",
-    description: "Real-time insights and performance metrics for freelancers and clients.",
-    icon: BarChart,
-  },
+ 
 ]
 
 export default function Ecosystem() {
