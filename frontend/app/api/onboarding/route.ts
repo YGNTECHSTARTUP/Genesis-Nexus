@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { onboardingSchema } from "@/lib/validations/onboarding-schema"
 
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
