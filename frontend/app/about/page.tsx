@@ -2,6 +2,7 @@
 import { PageHeader } from "../components/page-header"
 import {Card,CardContent} from "@/freelancer-platform/components/ui/card"
 import { Avatar,AvatarFallback,AvatarImage } from "@/freelancer-platform/components/ui/avatar"
+import Image from "next/image"
 export const metadata = {
   title: "About Us | FreelancerHub",
   description: "Learn about our mission to connect businesses with top freelance talent",
@@ -60,7 +61,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="rounded-lg overflow-hidden">
-            <img src="/freelancer-logo.png" alt="FreelancerHub team" className="w-full h-auto" />
+            <Image src="/freelancer-logo.png" alt="FreelancerHub team" className="w-full h-auto" />
           </div>
         </div>
       </section>

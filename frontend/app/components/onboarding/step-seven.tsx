@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
+// import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/onboarding-form/components/ui/form"
 import { Input } from "@/onboarding-form/components/ui/input"
@@ -12,7 +13,7 @@ import { Textarea } from "@/onboarding-form/components/ui/textarea"
 import { Label } from "@/onboarding-form/components/ui/label"
 
 export function OnboardingStepSeven() {
-  const { nextStep } = useOnboardingForm()
+  // const { nextStep } = useOnboardingForm()
   const form = useFormContext()
   const userType = form.watch("userType")
   const [education, setEducation] = useState({
@@ -41,7 +42,7 @@ export function OnboardingStepSeven() {
     const currentEducation = form.getValues("education") || []
     form.setValue(
       "education",
-      currentEducation.filter((_, i) => i !== index),
+      currentEducation.filter((_: any, i: number) => i !== index),
     )
   }
 

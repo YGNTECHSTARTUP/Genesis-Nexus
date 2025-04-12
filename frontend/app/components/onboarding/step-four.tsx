@@ -1,7 +1,7 @@
 "use client"
 
 
-import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
+// import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
 import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from "@/onboarding-form/components/ui/form"
 import { MultiSelect } from "@/onboarding-form/components/ui/multi-select"
@@ -150,7 +150,7 @@ const AVAILABLE_CERTIFICATIONS = [
 ]
 
 export function OnboardingStepFour() {
-  const { nextStep } = useOnboardingForm()
+  // const { nextStep } = useOnboardingForm()
   const form = useFormContext()
   const userType = form.watch("userType")
 
