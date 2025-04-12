@@ -1,0 +1,11 @@
+import type { Metadata } from "next"
+import SettingsOverview from "@/app/components/dashboard/settings/page"
+
+export const metadata: Metadata = {
+  title: "Settings",
+  description: "Manage your account settings",
+}
+
+export default function SettingsPage() {
+  return <SettingsOverview />
+}
