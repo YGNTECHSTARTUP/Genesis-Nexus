@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 // import { useEffect } from "react";
 import {
-  useUser,
+
   ClerkProvider,
   SignInButton,
   SignUpButton,
@@ -33,13 +33,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { isSignedIn, user } = useUser();
+ 
 //   // const [appUser, setAppUser] = useState(null);
 //   // useEffect(()=>{
-  if(isSignedIn && user){
-    console.log(user.id);
-    // setAppUser(data.user)
-  }
+ 
 // // },[user,isSignedIn])
   return (
     <ClerkProvider>

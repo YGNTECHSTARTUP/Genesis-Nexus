@@ -14,7 +14,7 @@ export function OnboardingNavigation() {
     setIsSubmitting(true)
     try {
       await nextStep()
-    } catch (error) {
+    } catch (error:any) {
       console.error("Step validation failed:", error)
 
       // Show a toast with the validation error
@@ -34,7 +34,7 @@ export function OnboardingNavigation() {
     setIsSubmitting(true)
     try {
       await completeOnboarding()
-    } catch (error) {
+    } catch (error:unknown) {
       console.error("Form submission failed:", error)
 
       // Show a toast with the validation error
