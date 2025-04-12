@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function BrowsePage() {
   return (
-    <main className="container mx-auto py-8 px-4">
+    <main className="container mx-auto py-8 px-4 mt-16">
       <PageHeader
         title="Browse Freelancers"
         description="Find the perfect freelancer for your project from our community of verified professionals"
