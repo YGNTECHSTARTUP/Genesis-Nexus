@@ -80,7 +80,7 @@ user.post('/register',async (c)=>{
             } = body;
       
             await db.insert(freelancers).values({
-              userId: clerkUserId,
+              userId: crypto.randomUUID(),
               experienceYears,
               portfolioLinks,
               hourlyRate:hourlyRate !== undefined ? hourlyRate.toString() : undefined,
@@ -180,7 +180,7 @@ user.post('/project', async (c) => {
         collaborationStyle,
         communicationTools,
         visibility,
-      });  
+      });
       return c.json({ success: true });
     } catch (err) {
       console.error('[Create Project Error]', err);
