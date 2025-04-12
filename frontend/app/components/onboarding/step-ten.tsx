@@ -1,15 +1,19 @@
 "use client"
 
+// import { useOnboardingForm } from "@/lib/hooks/use-onboarding-form"
 import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/onboarding-form/components/ui/form"
-import { Input } from "@/onboarding-form/components/ui/input"
-import { MultiSelect } from "@/onboarding-form/components/ui/multi-select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/onboarding-form/components/ui/avatar"
-import { Button } from "@/onboarding-form/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+// import { MultiSelect } from "@/onboarding-form/components/ui/multi-select"
+import { MultiSelect } from "../multi-select"
+// import { MultiSelect } from "@/components/ui/multi-select"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import { Upload } from "lucide-react"
 import { useFormContext } from "react-hook-form"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
+import { useUser } from "@clerk/nextjs"
 
 // This would typically come from your API
 const AVAILABLE_LANGUAGES = [
@@ -28,44 +32,46 @@ const AVAILABLE_LANGUAGES = [
   { label: "Hindi", value: "hindi" },
   { label: "Bengali", value: "bengali" },
   { label: "Turkish", value: "turkish" },
-  { label: "Urdu", value: "urdu" },
-  { label: "Punjabi", value: "punjabi" },
-  { label: "Tamil", value: "tamil" },
-  { label: "Telugu", value: "telugu" },
-  { label: "Gujarati", value: "gujarati" },
-  { label: "Marathi", value: "marathi" },
-  { label: "Malayalam", value: "malayalam" },
-  { label: "Kannada", value: "kannada" },
-  { label: "Sinhala", value: "sinhala" },
-  { label: "Thai", value: "thai" },
-  { label: "Vietnamese", value: "vietnamese" },
-  { label: "Indonesian", value: "indonesian" },
-  { label: "Filipino", value: "filipino" },
-  { label: "Hebrew", value: "hebrew" },
-  { label: "Persian (Farsi)", value: "farsi" },
-  { label: "Greek", value: "greek" },
-  { label: "Swedish", value: "swedish" },
-  { label: "Norwegian", value: "norwegian" },
-  { label: "Finnish", value: "finnish" },
-  { label: "Polish", value: "polish" },
-  { label: "Czech", value: "czech" },
-  { label: "Hungarian", value: "hungarian" },
-  { label: "Romanian", value: "romanian" },
-  { label: "Ukrainian", value: "ukrainian" },
-  { label: "Malay", value: "malay" }
-
 ]
 
 export function OnboardingStepTen() {
   const { completeOnboarding } = useOnboardingForm()
   const form = useFormContext()
+  const { user, isLoaded } = useUser()
+  const initialized = useRef(false)
 
-  // Initialize arrays if they're undefined
+  // Initialize arrays if they're undefined and pre-fill user data
   useEffect(() => {
-    if (!form.getValues("languagesSpoken")) {
-      form.setValue("languagesSpoken", [])
+    if (!initialized.current && isLoaded) {
+      if (!form.getValues("languagesSpoken")) {
+        form.setValue("languagesSpoken", [], { shouldValidate: false })
+      }
+
+      // Pre-fill user data if not already set
+      if (user) {
+        if (!form.getValues("fullName") && user.fullName) {
+          form.setValue("fullName", user.fullName, { shouldValidate: false })
+        }
+
+        if (!form.getValues("email") && user.primaryEmailAddress?.emailAddress) {
+          form.setValue("email", user.primaryEmailAddress.emailAddress, { shouldValidate: false })
+        }
+
+        if (!form.getValues("username") && user.username) {
+          form.setValue("username", user.username, { shouldValidate: false })
+        }
+
+        if (!form.getValues("profilePicture") && user.imageUrl) {
+          form.setValue("profilePicture", user.imageUrl, { shouldValidate: false })
+        }
+
+        // Store the user ID
+        form.setValue("userId", user.id, { shouldValidate: false })
+      }
+
+      initialized.current = true
     }
-  }, [form])
+  }, [form, user, isLoaded])
 
   return (
     <Form {...form}>
