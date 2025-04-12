@@ -16,46 +16,38 @@ declare module "hono"  {
     c.set('AIs',AI);
     await next();
   })
-ais.get('/assistant', async (c) => {
-      const content=c.req.query('q');
-    const ai = c.get('AIs')
+  ais.get('/assistant', async (c) => {
+    const content = c.req.query('q');
+    const ai = c.get('AIs');
   
     const messages = [
-      { role: 'system', content:'You are a helpful and friendly AI assistant who gives accurate and clear responses.'},
+      { role: 'system', content: 'You are a helpful and friendly AI assistant who gives accurate and clear responses.' },
       {
         role: 'user',
         content: `${content}`,
       },
     ];
   
-    const stream = await ai.run("@hf/thebloke/openhermes-2.5-mistral-7b-awq", {
+    const aiResponse = await ai.run("@hf/thebloke/openhermes-2.5-mistral-7b-awq", {
       messages,
       temperature: 0.3,
-  top_p: 0.9,
-  stream: true,
-
+      top_p: 0.9,
+      stream: false,
     });
   
-    if (stream instanceof ReadableStream) {
-      const reader = stream.getReader();
-      let result = '';
-      let done = false;
-  
-      while (!done) {
-        const { value, done: streamDone } = await reader.read();
-        done = streamDone;
-        if (value) {
-          result += new TextDecoder().decode(value);
-        }
-      }
-  
-      console.log(result);
-      return c.json({ response: result });
-    } else {
-      console.error("Unexpected stream type:", stream);
-      return c.json({ error: "Unexpected stream type" });
+    // Get the response string from the object
+    let text = '';
+    if (aiResponse instanceof ReadableStream) {
+      text = await readAIResponse(aiResponse);
+    } else if (aiResponse?.response) {
+      text = aiResponse.response;
     }
+    text = text.replace(/[\n\v]+/g, ' ').trim();
+  
+    return c.json({ response: text });
   });
+  
+  
   ais.post('/best-three', async (c) => {
     const ai = c.get('AIs'); // AI instance
   
