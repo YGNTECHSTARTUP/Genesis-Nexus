@@ -3,11 +3,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { TrustScoreBadge } from "@/components/trust-score-badge"
-import { generateSlug } from "@/utils/slug"
-import type { Freelancer } from "@/types/freelancer"
+import { TrustScoreBadge } from "../components/trust-score-badge"
+import { generateSlug } from "../utils/slug"
+import type { Freelancer } from "../types/freelancer"
 import Link from "next/link"
 import { motion } from "framer-motion"
+
 
 interface FreelancerCardProps {
   freelancer: Freelancer

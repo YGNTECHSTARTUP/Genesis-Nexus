@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { FreelancerCard } from "@/components/freelancer-card"
+import { FreelancerCard } from "./freelancer-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, SlidersHorizontal } from "lucide-react"
-import { freelancers } from "@/data/sample-data"
+import { freelancers } from "../data/sample-data"
 import { motion } from "framer-motion"
 
 export function FreelancerGrid() {
