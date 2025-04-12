@@ -1,5 +1,6 @@
+import AnalyticsOverview from "@/components/dashboard/analytics-overview"
 import type { Metadata } from "next"
-import AnalyticsOverview from "@/app/dashboard/analytics/page"
+// import AnalyticsOverview from "@/app/dashboard/analytics/page"
 
 export const metadata: Metadata = {
   title: "Analytics",

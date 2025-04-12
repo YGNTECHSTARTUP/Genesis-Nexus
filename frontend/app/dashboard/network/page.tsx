@@ -1,5 +1,6 @@
+import NetworkOverview from "@/components/dashboard/network-overview"
 import type { Metadata } from "next"
-import NetworkOverview from "@/app/dashboard/network/page"
+// import NetworkOverview from "@/app/dashboard/network/page"
 
 export const metadata: Metadata = {
   title: "Network",

@@ -1,5 +1,6 @@
+import DashboardOverview from "@/components/dashboard/dashboard-overview"
 import type { Metadata } from "next"
-import DashboardOverview from "@/app/dashboard/settings/page"
+// import DashboardOverview from "@/app/dashboard/settings/page"
 
 export const metadata: Metadata = {
   title: "Dashboard",
