@@ -1,7 +1,7 @@
 "use client"
 
 
-import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
+// import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/onboarding-form/components/ui/form"
 import {Input} from "@/onboarding-form/components/ui/input"
@@ -10,7 +10,7 @@ import { useState, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
 
 export function OnboardingStepNine() {
-  const { nextStep } = useOnboardingForm()
+  // const { nextStep } = useOnboardingForm()
   const form = useFormContext()
   const userType = form.watch("userType")
   const [sliderValue, setSliderValue] = useState<number>(0) // Initialize with 0 instead of form.getValues()
@@ -81,7 +81,7 @@ export function OnboardingStepNine() {
           name="hourlyRate"
           render={({ field }) => (
             <FormItem className="space-y-4">
-              <FormLabel>Hourly Rate (USD)</FormLabel>
+              <FormLabel>Hourly Rate (Rupees)</FormLabel>
               <FormControl>
                 <div className="space-y-4">
                   <Slider
@@ -95,9 +95,9 @@ export function OnboardingStepNine() {
                     }}
                   />
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">$5/hr</span>
-                    <span className="text-sm font-medium">${sliderValue}/hr</span>
-                    <span className="text-sm text-muted-foreground">$200+/hr</span>
+                    <span className="text-sm text-muted-foreground">₹\5/hr</span>
+                    <span className="text-sm font-medium">₹{sliderValue}/hr</span>
+                    <span className="text-sm text-muted-foreground">₹200+/hr</span>
                   </div>
                 </div>
               </FormControl>

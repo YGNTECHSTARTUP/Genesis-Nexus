@@ -54,9 +54,12 @@ export default function Header() {
         <Button variant="outline" className="hidden sm:flex">
           Sign In
         </Button>
+        <Link href="/dashboard">
         <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
           Get Started
         </Button>
+        </Link>
+       
       </div>
     </header>
   )

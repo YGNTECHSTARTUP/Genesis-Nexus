@@ -1,7 +1,7 @@
 "use client"
 
 
-import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
+// import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
 import { Form, FormControl, FormField, FormItem, FormMessage}from "@/onboarding-form/components/ui/form"
 import { RadioGroup,RadioGroupItem } from "@/freelancer-client-dashboard/components/ui/radio-group"
@@ -10,7 +10,7 @@ import { useFormContext } from "react-hook-form"
 import { useEffect } from "react"
 
 export function OnboardingStepOne() {
-  const { nextStep } = useOnboardingForm()
+  // const { nextStep } = useOnboardingForm()
   const form = useFormContext()
 
   // Ensure userType is set to a default value if it's undefined

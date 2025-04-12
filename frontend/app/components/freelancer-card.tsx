@@ -49,7 +49,7 @@ export function FreelancerCard({ freelancer }: FreelancerCardProps) {
                 <span className="inline-block w-2 h-2 rounded-full bg-teal-500 mr-1"></span>
                 {country} • {experienceYears} {experienceYears === 1 ? "year" : "years"} experience
               </p>
-              <p className="font-medium text-teal-600 dark:text-teal-400">${hourlyRate}/hr</p>
+              <p className="font-medium text-teal-600 dark:text-teal-400">₹{hourlyRate}/hr</p>
             </div>
           </CardContent>
 

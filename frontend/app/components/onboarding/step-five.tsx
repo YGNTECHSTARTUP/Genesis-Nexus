@@ -29,7 +29,7 @@ export function OnboardingStepFive() {
                 <FormLabel>Budget</FormLabel>
                 <FormControl>
                   <div className="flex items-center">
-                    <span className="mr-2">$</span>
+                    <span className="mr-2">₹</span>
                     <Input
                       type="number"
                       placeholder="Enter your budget"

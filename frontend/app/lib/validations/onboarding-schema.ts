@@ -7,7 +7,7 @@ export const userTypeSchema = z.object({
   }),
 })
 
-// Step 2: Freelancing Experience (for freelancers)
+// Step 2: Freelancing Experience (for freelancers) or Company Name (for clients)
 export const freelancingExperienceSchema = z.object({
   experienceYears: z.coerce
     .number({
@@ -15,7 +15,10 @@ export const freelancingExperienceSchema = z.object({
     })
     .min(0, "Experience years must be 0 or greater")
     .optional(),
-  companyName: z.string().optional(),
+})
+
+export const clientInfoSchema = z.object({
+  companyName: z.string().min(1, "Company name is required"),
 })
 
 // Step 3: Work Type & Skills
@@ -43,12 +46,19 @@ export const preferredRateSchema = z.object({
     })
     .min(1, "Hourly rate must be at least 1")
     .optional(),
-  budget: z.coerce.number().optional(),
+  budget: z.coerce
+    .number({
+      required_error: "Please enter your budget",
+    })
+    .min(1, "Budget must be at least 1")
+    .optional(),
 })
 
 // Helper function to validate URLs with flexible input
 const urlSchema = z.string().refine(
   (value) => {
+    if (!value) return true // Allow empty strings
+
     try {
       // Add protocol if missing
       const url = /^https?:\/\//i.test(value) ? value : `https://${value}`
@@ -103,7 +113,7 @@ export const bioSchema = z.object({
 // Step 9: Pricing
 export const pricingSchema = z.object({
   hourlyRate: z.coerce.number().min(1, "Hourly rate must be at least 1").optional(),
-  budget: z.coerce.number().optional(),
+  budget: z.coerce.number().min(1, "Budget must be at least 1").optional(),
   duration: z.string().optional(),
 })
 
@@ -129,6 +139,9 @@ export const personalInfoSchema = z.object({
 
 // Combined schema for the entire form (used only for final submission)
 export const onboardingSchema = z.object({
+  // User ID from Clerk
+  userId: z.string().optional(),
+
   // Base user info
   userType: userTypeSchema.shape.userType,
   fullName: personalInfoSchema.shape.fullName,
@@ -172,14 +185,16 @@ export function getStepSchema(step: number, userType?: string) {
     case 1:
       return userTypeSchema
     case 2:
-      return freelancingExperienceSchema
+      return userType === "client" ? clientInfoSchema : freelancingExperienceSchema
     case 3:
       // Return different schema based on user type
       return userType === "freelancer" ? freelancerWorkTypeSchema : clientWorkTypeSchema
     case 4:
       return skillsDetailsSchema
     case 5:
-      return preferredRateSchema
+      return userType === "freelancer"
+        ? z.object({ hourlyRate: z.coerce.number().min(1, "Hourly rate must be at least 1") })
+        : z.object({ budget: z.coerce.number().min(1, "Budget must be at least 1") })
     case 6:
       return experienceSchema
     case 7:
