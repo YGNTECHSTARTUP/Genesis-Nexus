@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import CalendarOverview from "@/app/components/dashboard/calendar/page"
+import CalendarOverview from "@/app/dashboard/calendar/page"
 
 export const metadata: Metadata = {
   title: "Calendar",

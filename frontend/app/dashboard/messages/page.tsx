@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import MessagesOverview from "@/app/components/dashboard/messages/page"
+import MessagesOverview from "@/app/dashboard/messages/page"
 
 export const metadata: Metadata = {
   title: "Messages",
