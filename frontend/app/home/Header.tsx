@@ -42,6 +42,12 @@ export default function Header() {
         >
           AI Assistant
         </Link>
+        <Link
+          href="/timeline"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Generate Timeline
+        </Link>
       </nav>
       <div className="flex items-center space-x-4">
         <ModeToggle />
