@@ -9,26 +9,26 @@ const testimonials = [
   {
     quote:
       "Finding the right developer used to take weeks. With FreelancerHub, I found a perfect match in just 2 days. The trust score system really helps identify quality talent quickly.",
-    author: "Sarah Johnson",
-    role: "Product Manager at TechCorp",
-    avatar: "/placeholder.svg?height=80&width=80",
-    company: "TechCorp",
+    author: "Jeff Bezos",
+    role: "CEO & founder of Amazon",
+    avatar: "/JeffBezos.jpeg",
+    company: "Amazon",
   },
   {
     quote:
       "As a freelancer, this platform has transformed how I find clients. The reputation system rewards quality work, and I've been able to increase my rates based on my trust score.",
-    author: "Michael Chen",
-    role: "Full Stack Developer",
-    avatar: "/placeholder.svg?height=80&width=80",
-    company: "Independent",
+    author: "MarkZukerBerg",
+    role: "CEO & founder",
+    avatar: "/markzukerberg.jpeg",
+    company: "FaceBook",
   },
   {
     quote:
       "We've hired three designers through FreelancerHub for our startup. The quality of talent is outstanding, and the platform makes collaboration seamless.",
-    author: "Jessica Williams",
+    author: "Narayan Gangdhar",
     role: "Co-founder",
-    avatar: "/placeholder.svg?height=80&width=80",
-    company: "DesignLab",
+    avatar: "/",
+    company: "Angel Broking",
   },
 ]
 

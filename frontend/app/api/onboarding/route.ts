@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server"
+<<<<<<< HEAD
+import { onboardingSchema } from "@/lib/validations/onboarding-schema"
+
+
+=======
 // import { onboardingSchema } from "@/lib/validations/onboarding-schema"
 import { onboardingSchema } from "@/app/lib/validations/onboarding-schema"
+>>>>>>> cddd8ab4e74d8c078cf64de60694baddab0492d3
 export async function POST(request: Request) {
   try {
     const body = await request.json()

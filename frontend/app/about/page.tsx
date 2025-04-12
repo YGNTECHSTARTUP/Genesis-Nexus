@@ -10,27 +10,27 @@ export const metadata = {
 export default function AboutPage() {
   const team = [
     {
-      name: "Alex Morgan",
+      name: "MarkZukerBerg",
       role: "Founder & CEO",
-      image: "/placeholder.svg?height=200&width=200",
+      image: "/markzukerberg.jpeg",
       bio: "Former freelancer with a passion for creating better opportunities for independent professionals.",
     },
     {
-      name: "Sophia Chen",
-      role: "Chief Technology Officer",
-      image: "/placeholder.svg?height=200&width=200",
+      name: "Natarajan Chandrasekaran",
+      role: "CEO of TCS",
+      image: "/Natarajan.jpeg",
       bio: "Tech leader with 15+ years of experience building marketplace platforms.",
     },
     {
-      name: "Marcus Johnson",
-      role: "Head of Community",
-      image: "/placeholder.svg?height=200&width=200",
+      name: "Jeff Bezos",
+      role: "CEO of Amazon",
+      image: "/jeffBezos.jpeg",
       bio: "Dedicated to creating a supportive environment for freelancers to thrive and grow.",
     },
     {
-      name: "Olivia Rodriguez",
-      role: "Chief Marketing Officer",
-      image: "/placeholder.svg?height=200&width=200",
+      name: "Narayan Gangadhar",
+      role: "Angel Broking CEO",
+      image: "/Narayan.jpeg",
       bio: "Marketing expert focused on connecting businesses with the right talent.",
     },
   ]
@@ -55,7 +55,7 @@ export default function AboutPage() {
               getting paid on time, and building a reputation. These experiences inspired the creation of FreelancerHub.
             </p>
             <p className="text-muted-foreground">
-              Today, we're proud to have helped thousands of freelancers build successful careers and businesses find
+              Today, we&apos;re proud to have helped thousands of freelancers build successful careers and businesses find
               the perfect talent for their projects.
             </p>
           </div>
@@ -92,7 +92,7 @@ export default function AboutPage() {
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-3">Empowering Independence</h3>
               <p className="text-muted-foreground">
-                We're committed to giving freelancers the tools and support they need to build sustainable independent
+                We&apos;re committed to giving freelancers the tools and support they need to build sustainable independent
                 careers on their own terms.
               </p>
             </CardContent>
@@ -101,7 +101,7 @@ export default function AboutPage() {
       </section>
 
       <section className="py-12">
-        <h2 className="text-2xl font-bold mb-8 text-center">Meet Our Team</h2>
+        <h2 className="text-2xl font-bold mb-8 text-center">Our Trusted Partners</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {team.map((member) => (
             <Card key={member.name} className="text-center">

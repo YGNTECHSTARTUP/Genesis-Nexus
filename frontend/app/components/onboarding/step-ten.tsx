@@ -28,6 +28,32 @@ const AVAILABLE_LANGUAGES = [
   { label: "Hindi", value: "hindi" },
   { label: "Bengali", value: "bengali" },
   { label: "Turkish", value: "turkish" },
+  { label: "Urdu", value: "urdu" },
+  { label: "Punjabi", value: "punjabi" },
+  { label: "Tamil", value: "tamil" },
+  { label: "Telugu", value: "telugu" },
+  { label: "Gujarati", value: "gujarati" },
+  { label: "Marathi", value: "marathi" },
+  { label: "Malayalam", value: "malayalam" },
+  { label: "Kannada", value: "kannada" },
+  { label: "Sinhala", value: "sinhala" },
+  { label: "Thai", value: "thai" },
+  { label: "Vietnamese", value: "vietnamese" },
+  { label: "Indonesian", value: "indonesian" },
+  { label: "Filipino", value: "filipino" },
+  { label: "Hebrew", value: "hebrew" },
+  { label: "Persian (Farsi)", value: "farsi" },
+  { label: "Greek", value: "greek" },
+  { label: "Swedish", value: "swedish" },
+  { label: "Norwegian", value: "norwegian" },
+  { label: "Finnish", value: "finnish" },
+  { label: "Polish", value: "polish" },
+  { label: "Czech", value: "czech" },
+  { label: "Hungarian", value: "hungarian" },
+  { label: "Romanian", value: "romanian" },
+  { label: "Ukrainian", value: "ukrainian" },
+  { label: "Malay", value: "malay" }
+
 ]
 
 export function OnboardingStepTen() {
