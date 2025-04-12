@@ -36,7 +36,7 @@ export default function AboutPage() {
   ]
 
   return (
-    <main className="container mx-auto py-8 px-4">
+    <main className="container mx-auto py-8 px-4 mt-16">
       <PageHeader
         title="About FreelancerHub"
         description="Our mission is to empower freelancers and businesses to work together seamlessly"
