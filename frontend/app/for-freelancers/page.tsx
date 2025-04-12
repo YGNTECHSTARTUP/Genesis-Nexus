@@ -100,7 +100,7 @@ export default function ForFreelancersPage() {
                 <div className="text-left">
                   <h3 className="text-xl font-semibold mb-2">Submit Proposals</h3>
                   <p className="text-muted-foreground">
-                    Send personalized proposals to clients explaining why you're the perfect fit for their project.
+                    Send personalized proposals to clients explaining why you&apos;re the perfect fit for their project.
                   </p>
                 </div>
               </div>

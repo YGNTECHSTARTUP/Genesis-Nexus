@@ -55,7 +55,7 @@ export default function AboutPage() {
               getting paid on time, and building a reputation. These experiences inspired the creation of FreelancerHub.
             </p>
             <p className="text-muted-foreground">
-              Today, we're proud to have helped thousands of freelancers build successful careers and businesses find
+              Today, we&apos;re proud to have helped thousands of freelancers build successful careers and businesses find
               the perfect talent for their projects.
             </p>
           </div>
@@ -92,7 +92,7 @@ export default function AboutPage() {
             <CardContent className="pt-6">
               <h3 className="text-xl font-semibold mb-3">Empowering Independence</h3>
               <p className="text-muted-foreground">
-                We're committed to giving freelancers the tools and support they need to build sustainable independent
+                We&apos;re committed to giving freelancers the tools and support they need to build sustainable independent
                 careers on their own terms.
               </p>
             </CardContent>
