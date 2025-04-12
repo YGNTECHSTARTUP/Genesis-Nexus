@@ -20,7 +20,7 @@ export function Timeline({ tasks }: TimelineProps) {
   return (
     <div className="space-y-6">
       {sortedTasks.map((task, index) => (
-        <div key={task.id} className="relative pl-8">
+        <div key={task.id || `${task.task}-${index}`} className="relative pl-8">
           {/* Timeline connector */}
           {index < sortedTasks.length - 1 && <div className="absolute left-3 top-6 bottom-0 w-0.5 bg-border" />}
 
