@@ -109,9 +109,9 @@ export function FreelancerGrid() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="0-50">$0 - $50</SelectItem>
-                  <SelectItem value="50-100">$50 - $100</SelectItem>
-                  <SelectItem value="100+">$100+</SelectItem>
+                  <SelectItem value="0-50">₹0 - ₹50</SelectItem>
+                  <SelectItem value="50-100">₹50 - ₹100</SelectItem>
+                  <SelectItem value="100+">₹100+</SelectItem>
                 </SelectContent>
               </Select>
             </div>

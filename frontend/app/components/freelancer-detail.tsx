@@ -263,7 +263,7 @@ export function FreelancerDetail({ freelancer }: FreelancerDetailProps) {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center mb-6">
-                  <p className="text-3xl font-bold text-teal-600 dark:text-teal-400">${hourlyRate}/hr</p>
+                  <p className="text-3xl font-bold text-teal-600 dark:text-teal-400">₹{hourlyRate}/hr</p>
                   <p className="text-sm text-muted-foreground">Hourly Rate</p>
                 </div>
 
