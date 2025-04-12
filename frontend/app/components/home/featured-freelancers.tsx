@@ -43,7 +43,7 @@ export function FeaturedFreelancers() {
                   <div className="relative h-48 overflow-hidden bg-gradient-to-r from-teal-500 to-emerald-500">
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Image
-                        src={freelancer.profilePicture || "/placeholder.svg"}
+                        src={freelancer.profilePicture || "/Natarajan.jpeg"}
                         alt={freelancer.fullName}
                         width={100}
                         height={100}
