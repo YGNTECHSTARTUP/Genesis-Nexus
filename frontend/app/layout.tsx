@@ -1,6 +1,7 @@
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Header from './home/Header'
 // import { useEffect } from "react";
 import {
 
@@ -50,6 +51,7 @@ export default function RootLayout({
     </SignedOut>
     <SignedIn>
         <UserButton/>
+       <Header/>
         {children}
         </SignedIn>
       </body>
