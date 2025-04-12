@@ -6,11 +6,7 @@ import Header from './home/Header'
 import {
 
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
+
 } from '@clerk/nextjs'
 import "./globals.css";
 import { ThemeProvider } from "./components/theme-provider";
@@ -47,15 +43,10 @@ export default function RootLayout({
       
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      ><SignedOut>
-      <SignInButton/>
-      <SignUpButton/>
-    </SignedOut>
-    <SignedIn>
-        <UserButton/>
+      >
        <Header/>
         {children}
-        </SignedIn>
+     
       </body>
       
     </html>

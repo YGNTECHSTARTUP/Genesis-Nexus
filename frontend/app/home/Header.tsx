@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "./mode-toggle"
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
 
 export default function Header() {
   return (
@@ -51,10 +52,17 @@ export default function Header() {
       </nav>
       <div className="flex items-center space-x-4">
         <ModeToggle />
-        <Button variant="outline" className="hidden sm:flex">
+        {/* <Button variant="outline" className="hidden sm:flex">
           Sign In
-        </Button>
-        <Link href="/dashboard">
+        </Button> */}
+         <SignedOut>
+              <SignInButton />
+              <SignUpButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+        <Link href="/onboarding">
         <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
           Get Started
         </Button>

@@ -213,23 +213,34 @@ export function OnboardingFormProvider({ children }: { children: React.ReactNode
 
         return Promise.reject(validationResult.error)
       }
-
+console.log(formData)
       // Submit the form data to the API
-      const response = await fetch("https://backend.eevanasivabalaji.workers.dev/user/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to submit onboarding data")
+      try {
+        const response = await fetch("https://backend.eevanasivabalaji.workers.dev/user/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form.getValues()),
+        })
+      
+        if (!response.ok) {
+          const text = await response.text()
+          console.error("Non-OK response:", text)
+          throw new Error(text)
+        }
+      
+        const json = await response.json()
+        console.log("Success:", json)
+      } catch (err) {
+        console.error("Network error:", err)
       }
 
-      const responseData = await response.json()
-      console.log("Form submitted successfully:", responseData)
+      // if (!response.ok) {
+      //   const errorData = await response.json()
+      //   throw new Error(errorData.message || "Failed to submit onboarding data")
+      // }
+
+      // const responseData = await response.json()
+      // console.log("Form submitted successfully:", responseData)
 
       // Show success toast
       // toast({
