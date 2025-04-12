@@ -4,7 +4,7 @@ import {Hono} from 'hono'
 import { db } from '../db';
 import { users, freelancers, clients ,projects, requests, reviews, projectTimelines} from '../schema';
 import type { User } from '@clerk/backend';
-import { eq } from 'drizzle-orm';
+import { eq, like } from 'drizzle-orm';
 import { devAuthMiddleware } from '../middleware/newAuth';
 declare module 'hono' {
     interface ContextVariableMap {
@@ -17,11 +17,13 @@ const user =new Hono();
 
 
 user.post('/register',async (c)=>{
-    const user = c.get('authUser') as User;
+    // // const user = c.get('authUser') as User;
     // const clerkUserId = user.id;
-    const profilePicture = user.imageUrl ?? '';
+    // const profilePicture = user.imageUrl ?? '';
     const body = await c.req.json();
+    const { userId, imageUrl } = await body;
     const {
+      
         fullName,
         username,
         email,
@@ -32,6 +34,7 @@ user.post('/register',async (c)=>{
         userType, // 'freelancer' | 'client'
         userProfile
       }: {
+       
         fullName: string;
         username: string;
         email: string;
@@ -44,12 +47,12 @@ user.post('/register',async (c)=>{
       } = body;
       try {
         await db.insert(users).values({
-          id:crypto.randomUUID(),
+          id:userId,
           fullName,
           username,
           email,
           phoneNumber,
-          profilePicture,
+          profilePicture:imageUrl,
           country,
           city,
           languagesSpoken,
@@ -80,7 +83,7 @@ user.post('/register',async (c)=>{
             } = body;
       
             await db.insert(freelancers).values({
-              userId: crypto.randomUUID(),
+              userId:userId,
               experienceYears,
               portfolioLinks,
               hourlyRate:hourlyRate !== undefined ? hourlyRate.toString() : undefined,
@@ -95,7 +98,7 @@ user.post('/register',async (c)=>{
             const { companyName }: { companyName: string } = body;
       
             await db.insert(clients).values({
-              userId: crypto.randomUUID(),
+              userId: userId,
               companyName
             });
           }
@@ -107,7 +110,7 @@ user.post('/register',async (c)=>{
         }
 
 })
-user.get('/best',async(c)=>{
+user.get('/freelancers',async(c)=>{
     try {
         const allFreelancers = await db
           .select({
@@ -134,9 +137,51 @@ user.get('/best',async(c)=>{
       }
     
 })
+user.get('/freelancer/:name', async (c) => {
+  const { name } = c.req.param();
+
+  if (!name) {
+    return c.json({ error: 'Name parameter is required' }, 400);
+  }
+
+  try {
+    const matchedFreelancers = await db
+      .select({
+        id: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        email: users.email,
+        profilePicture: users.profilePicture,
+        country: users.country,
+        city: users.city,
+        experienceYears: freelancers.experienceYears,
+        hourlyRate: freelancers.hourlyRate,
+        availability: freelancers.availability,
+        workStyle: freelancers.workStyle,
+        portfolioLinks: freelancers.portfolioLinks
+      })
+      .from(freelancers)
+      .innerJoin(users, eq(users.id, freelancers.userId))
+      .where(
+        // Use ILIKE for case-insensitive partial match if your DB supports it (e.g. PostgreSQL)
+        like(users.fullName, `%${name}%`)
+      );
+
+    if (matchedFreelancers.length === 0) {
+      return c.json({ message: 'No freelancers found matching that name' });
+    }
+
+    return c.json(matchedFreelancers);
+  } catch (err) {
+    console.error('[Search Freelancers Error]', err);
+    return c.json({ error: 'Failed to search freelancers' }, 500);
+  }
+});
+
 user.post('/project', async (c) => {
-    const user = c.get('authUser') as User;
-    const clientId = user.id; // clerk ID == users.id
+    // const user = c.get('authUser') as User;
+    // const clientId = user.id; // clerk ID == users.id
+    const clientId = c.req.query("id");
   
     const body = await c.req.json();
   
@@ -188,14 +233,14 @@ user.post('/project', async (c) => {
     }
   });
   user.get('/projects', async (c) => {
-    const user = c.get('authUser') as User;
-    // const clientId = user.id;
+    // const user = c.get('authUser') as User;
+    const clientId =c.req.query("id");
   
     try {
       const userProjects = await db
         .select()
-        .from(projects);
-        // .where(eq(projects.clientId, clientId));
+        .from(projects)
+        .where(clientId ? eq(projects.clientId, clientId) : undefined);
   
       return c.json({ projects: userProjects });
     } catch (err) {
@@ -205,8 +250,8 @@ user.post('/project', async (c) => {
   });
   
   user.post('/requests', async (c) => {
-  
-    const { clientId, freelancerId, projectId, message } = await c.req.json()
+    const clientId =c.req.query("id");
+    const {  freelancerId, projectId, message } = await c.req.json()
   
     if (!clientId || !freelancerId || !projectId) {
       return c.json({ error: 'Missing required fields' }, 400)

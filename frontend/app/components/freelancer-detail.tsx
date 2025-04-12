@@ -57,7 +57,7 @@ export function FreelancerDetail({ freelancer }: FreelancerDetailProps) {
   } = freelancer
 
   // Get initials for avatar fallback
-  const initials = fullName
+  const initials = fullName||" "
     .split(" ")
     .map((n) => n[0])
     .join("")
