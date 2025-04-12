@@ -13,12 +13,12 @@ declare module 'hono' {
   }
 
 const user =new Hono();
-user.use(devAuthMiddleware);
+// user.use(devAuthMiddleware);
 
 
 user.post('/register',async (c)=>{
     const user = c.get('authUser') as User;
-    const clerkUserId = user.id;
+    // const clerkUserId = user.id;
     const profilePicture = user.imageUrl ?? '';
     const body = await c.req.json();
     const {
@@ -44,7 +44,7 @@ user.post('/register',async (c)=>{
       } = body;
       try {
         await db.insert(users).values({
-          id: clerkUserId,
+          id:crypto.randomUUID(),
           fullName,
           username,
           email,
@@ -95,7 +95,7 @@ user.post('/register',async (c)=>{
             const { companyName }: { companyName: string } = body;
       
             await db.insert(clients).values({
-              userId: clerkUserId,
+              userId: crypto.randomUUID(),
               companyName
             });
           }
