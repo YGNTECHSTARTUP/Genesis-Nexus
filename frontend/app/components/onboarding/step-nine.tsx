@@ -81,7 +81,7 @@ export function OnboardingStepNine() {
           name="hourlyRate"
           render={({ field }) => (
             <FormItem className="space-y-4">
-              <FormLabel>Hourly Rate (USD)</FormLabel>
+              <FormLabel>Hourly Rate (Rupees)</FormLabel>
               <FormControl>
                 <div className="space-y-4">
                   <Slider
@@ -95,9 +95,9 @@ export function OnboardingStepNine() {
                     }}
                   />
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">$5/hr</span>
-                    <span className="text-sm font-medium">${sliderValue}/hr</span>
-                    <span className="text-sm text-muted-foreground">$200+/hr</span>
+                    <span className="text-sm text-muted-foreground">₹\5/hr</span>
+                    <span className="text-sm font-medium">₹{sliderValue}/hr</span>
+                    <span className="text-sm text-muted-foreground">₹200+/hr</span>
                   </div>
                 </div>
               </FormControl>

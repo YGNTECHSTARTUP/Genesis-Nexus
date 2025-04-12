@@ -72,7 +72,7 @@ export function OnboardingStepThree() {
                 <FormLabel>Required Skills</FormLabel>
                 <FormControl>
                   <MultiSelect
-                    placeholder="Select skills..."
+                    placeholder="Select skills.."
                     options={AVAILABLE_SKILLS}
                     selected={field.value || []}
                     onChange={(selected) => field.onChange(selected)}

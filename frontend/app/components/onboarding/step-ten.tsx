@@ -164,7 +164,7 @@ export function OnboardingStepTen() {
               <FormItem>
                 <FormLabel>Country</FormLabel>
                 <FormControl>
-                  <Input placeholder="United States" {...field} />
+                  <Input placeholder="Enter your country" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -178,7 +178,7 @@ export function OnboardingStepTen() {
               <FormItem>
                 <FormLabel>City</FormLabel>
                 <FormControl>
-                  <Input placeholder="New York" {...field} />
+                  <Input placeholder="Enter your city" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

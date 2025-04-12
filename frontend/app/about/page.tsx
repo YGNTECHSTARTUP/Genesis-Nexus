@@ -60,7 +60,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="rounded-lg overflow-hidden">
-            <img src="/placeholder.svg?height=400&width=600" alt="FreelancerHub team" className="w-full h-auto" />
+            <img src="/freelancer-logo.png" alt="FreelancerHub team" className="w-full h-auto" />
           </div>
         </div>
       </section>
