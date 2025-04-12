@@ -1,5 +1,6 @@
+import ProfileOverview from "@/components/dashboard/profile-overview"
 import type { Metadata } from "next"
-import ProfileOverview from "@/app/dashboard/profile/page"
+// import ProfileOverview from "@/app/dashboard/profile/page"
 
 export const metadata: Metadata = {
   title: "Profile",

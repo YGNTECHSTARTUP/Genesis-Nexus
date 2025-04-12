@@ -189,13 +189,13 @@ user.post('/project', async (c) => {
   });
   user.get('/projects', async (c) => {
     const user = c.get('authUser') as User;
-    const clientId = user.id;
+    // const clientId = user.id;
   
     try {
       const userProjects = await db
         .select()
-        .from(projects)
-        .where(eq(projects.clientId, clientId));
+        .from(projects);
+        // .where(eq(projects.clientId, clientId));
   
       return c.json({ projects: userProjects });
     } catch (err) {
@@ -231,9 +231,7 @@ user.post('/project', async (c) => {
   
     return c.json({ requests: result })
   })
-  user.post('/review',async(c)=>{
-
-  })
+  
   user.post('/reviews', async (c) => {
   
     const { reviewerId, revieweeId, rating, comment } = await c.req.json()
