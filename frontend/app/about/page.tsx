@@ -1,7 +1,7 @@
 
 import { PageHeader } from "../components/page-header"
-import {Card,CardContent} from "@/freelancer-platform/components/ui/card"
-import { Avatar,AvatarFallback,AvatarImage } from "@/freelancer-platform/components/ui/avatar"
+import {Card,CardContent} from "@/components/ui/card"
+import { Avatar,AvatarFallback,AvatarImage } from "@/components/ui/avatar"
 import Image from "next/image"
 export const metadata = {
   title: "About Us | FreelancerHub",

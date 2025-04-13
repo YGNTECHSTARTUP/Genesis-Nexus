@@ -4,14 +4,14 @@
 
 // import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/onboarding-form/components/ui/form"
-import { Input } from "@/onboarding-form/components/ui/input"
-import { Textarea } from "@/onboarding-form/components/ui/textarea"
-import { Button } from "@/onboarding-form/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 import { PlusCircle, X } from "lucide-react"
 import {  useState } from "react"
 import { useFormContext } from "react-hook-form"
-import { Label } from "@/onboarding-form/components/ui/label"
+import { Label } from "@/components/ui/label"
 import Link from "next/link"
 
 export function OnboardingStepSix() {

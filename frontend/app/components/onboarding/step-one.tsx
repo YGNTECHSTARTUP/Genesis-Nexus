@@ -3,11 +3,17 @@
 
 // import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import { Form, FormControl, FormField, FormItem, FormMessage}from "@/onboarding-form/components/ui/form"
-import { RadioGroup,RadioGroupItem } from "@/freelancer-client-dashboard/components/ui/radio-group"
-import {Label} from "@/onboarding-form/components/ui/label"
+import { Form, FormControl, FormField, FormItem, FormMessage}from "@/components/ui/form"
+// import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group"
+// RadioGroupItem
+import {Label} from "@/components/ui/label"
 import { useFormContext } from "react-hook-form"
 import { useEffect } from "react"
+// import { RadioGroup } from "@radix-ui/react-dropdown-menu"
+
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+
+
 
 export function OnboardingStepOne() {
   // const { nextStep } = useOnboardingForm()

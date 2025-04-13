@@ -1,7 +1,7 @@
 "use client"
 
 
-import {Button} from "@/freelancer-platform/components/ui/button"
+import {Button} from "@/components/ui/button"
 import { motion } from "framer-motion"
 import Link from "next/link"
 

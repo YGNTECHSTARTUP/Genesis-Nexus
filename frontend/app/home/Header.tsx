@@ -74,7 +74,7 @@ export default function Header() {
             <SignedIn>
               <UserButton />
             </SignedIn>
-        <Link href="/onboarding">
+        <Link href="/dashboard">
         <Button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
           Get Started
         </Button>

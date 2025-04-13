@@ -3,8 +3,6 @@
 import type * as React from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 
-interface ThemeProviderProps extends React.PropsWithChildren {}
-
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+export function ThemeProvider({ children, ...props }: React.PropsWithChildren) {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>
 }

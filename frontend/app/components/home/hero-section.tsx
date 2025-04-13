@@ -1,7 +1,7 @@
 "use client"
 
-import {Button} from "@/freelancer-platform/components/ui/button"
-import {Input} from "@/freelancer-platform/components/ui/input"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
 import { motion } from "framer-motion"
 import { Search } from "lucide-react"
 import Link from "next/link"

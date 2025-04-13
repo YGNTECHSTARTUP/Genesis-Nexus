@@ -19,9 +19,11 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { ThemeToggle } from "@/freelancer-client-dashboard/components/theme-toggle"
+// import { ThemeToggle } from "@/components/theme-toggle"
+// ThemeToggle
 // import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
+import { ThemeToggle } from "@/components/dashboard/theme-toggle"
 
 // Mock user data - in a real app, this would come from your auth system
 const currentUser = {

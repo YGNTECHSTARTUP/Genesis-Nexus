@@ -2,9 +2,9 @@
 
 // import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/onboarding-form/components/ui/form"
-import { Input } from "@/onboarding-form/components/ui/input"
-import { Slider } from "@/onboarding-form/components/ui/slider"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+// import { Slider } from "@/components/ui/slider"
 import { useState } from "react"
 import { useFormContext } from "react-hook-form"
 
@@ -13,6 +13,7 @@ export function OnboardingStepTwo() {
   const form = useFormContext()
   const userType = form.watch("userType")
   const [sliderValue, setSliderValue] = useState<number>(form.getValues("experienceYears") || 0)
+  setSliderValue(0) // Replace "qwqa" with a valid number
 
   // If user is a client, we'll skip this step in the navigation component
   if (userType === "client") {
@@ -55,21 +56,20 @@ export function OnboardingStepTwo() {
         <FormField
           control={form.control}
           name="experienceYears"
-          render={({ field }) => (
+          render={() => (
             <FormItem className="space-y-4">
               <FormLabel>Years of Experience</FormLabel>
               <FormControl>
                 <div className="space-y-4">
-                  <Slider
+                  {/* <Slider
                     min={0}
                     max={20}
                     step={1}
                     value={[sliderValue]}
                     onValueChange={(value) => {
                       setSliderValue(value[0])
-                      field.onChange(value[0])
                     }}
-                  />
+                  /> */}
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">0 years</span>
                     <span className="text-sm font-medium">{sliderValue} years</span>

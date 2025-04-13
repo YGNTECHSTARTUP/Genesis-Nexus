@@ -4,10 +4,14 @@ import React from "react"
 
 // import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/onboarding-form/components/ui/form"
-import { Input } from "@/onboarding-form/components/ui/input"
-import { MultiSelect } from "@/onboarding-form/components/ui/multi-select"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+// import { Input } from "@/onboarding-form/components/ui/input"
+// Input
+// // import { MultiSelect } from "@/onboarding-form/components/ui/multi-select"
+// MultiSelect
 import { useFormContext } from "react-hook-form"
+import { Input } from "@/components/ui/input"
+import { MultiSelect } from "../multi-select"
 
 // This would typically come from your API
 const AVAILABLE_SKILLS = [

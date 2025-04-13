@@ -3,9 +3,9 @@
 
 // import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/onboarding-form/components/ui/form"
-import {Input} from "@/onboarding-form/components/ui/input"
-import {Slider} from "@/onboarding-form/components/ui/slider"
+import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
+import {Input} from "@/components/ui/input"
+import {Slider} from "@/components/ui/slider"
 import { useState, useEffect } from "react"
 import { useFormContext } from "react-hook-form"
 

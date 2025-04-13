@@ -1,7 +1,7 @@
 "use client"
 
-import { Avatar,AvatarFallback,AvatarImage } from "@/freelancer-platform/components/ui/avatar"
-import {Card,CardContent} from "@/freelancer-platform/components/ui/card"
+import { Avatar,AvatarFallback,AvatarImage } from "@/components/ui/avatar"
+import {Card,CardContent} from "@/components/ui/card"
 import { motion } from "framer-motion"
 import { Quote } from "lucide-react"
 

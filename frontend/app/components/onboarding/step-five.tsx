@@ -3,8 +3,8 @@
 
 // import {useOnboardingForm} from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from "@/onboarding-form/components/ui/form"
-import {Input} from "@/onboarding-form/components/ui/input"
+import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from "@/components/ui/form"
+import {Input} from "@/components/ui/input"
 import { useFormContext } from "react-hook-form"
 
 export function OnboardingStepFive() {

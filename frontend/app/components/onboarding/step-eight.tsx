@@ -3,11 +3,11 @@
 
 // import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
-import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from "@/onboarding-form/components/ui/form"
-import {Textarea} from "@/onboarding-form/components/ui/textarea"
-import { RadioGroup,RadioGroupItem } from "@/onboarding-form/components/ui/radio-group"
-import {Label} from "@/onboarding-form/components/ui/label"
-import { Input } from "@/onboarding-form/components/ui/input" 
+import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from "@/components/ui/form"
+import {Textarea} from "@/components/ui/textarea"
+import { RadioGroup,RadioGroupItem } from "@/components/ui/radio-group"
+import {Label} from "@/components/ui/label"
+import { Input } from "@/components/ui/input" 
 import { useFormContext } from "react-hook-form"
 
 export function OnboardingStepEight() {

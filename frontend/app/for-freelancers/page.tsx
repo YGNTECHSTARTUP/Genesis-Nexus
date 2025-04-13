@@ -1,6 +1,6 @@
-import { Button } from "@/freelancer-platform/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { PageHeader } from "@/app/components/page-header"
-import { Card, CardContent } from "@/freelancer-platform/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle, Star, TrendingUp, Shield } from "lucide-react"
 import Link from "next/link"
 

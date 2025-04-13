@@ -1,8 +1,8 @@
 "use client"
 
 
-import {Button} from "@/onboarding-form/components/ui/button"
-import {Card,CardContent,CardDescription,CardHeader,CardTitle} from "@/onboarding-form/components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Card,CardContent,CardDescription,CardHeader,CardTitle} from "@/components/ui/card"
 import Link from "next/link"
 import { CheckCircle } from "lucide-react"
 

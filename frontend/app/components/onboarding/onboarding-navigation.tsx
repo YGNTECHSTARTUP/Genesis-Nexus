@@ -3,9 +3,9 @@
 
 
 import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
-import { Button } from "@/onboarding-form/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import {toast} from "@/onboarding-form/components/ui/use-toast"
+// import {toast} from "@/components/ui/use-toast"
 
 export function OnboardingNavigation() {
   const { isFirstStep, isLastStep, nextStep, prevStep, completeOnboarding } = useOnboardingForm()
@@ -20,11 +20,12 @@ export function OnboardingNavigation() {
 
       // Show a toast with the validation error
       if (error.errors && error.errors.length > 0) {
-        toast({
-          title: "Validation Error",
-          description: error.errors[0].message,
-          variant: "destructive",
-        })
+        // toast({
+        console.log(error);
+        //   title: "Validation Error",
+        //   description: error.errors[0].message,
+        //   variant: "destructive",
+        // })
       }
     } finally {
       setIsSubmitting(false)
@@ -40,11 +41,12 @@ export function OnboardingNavigation() {
 
       // Show a toast with the validation error
       if (error.errors && error.errors.length > 0) {
-        toast({
-          title: "Submission Error",
-          description: error.errors[0].message,
-          variant: "destructive",
-        })
+        // toast({
+        //   title: "Submission Error",
+        //   description: error.errors[0].message,
+        //   variant: "destructive",
+        // })
+        console.log(error);
       }
     } finally {
       setIsSubmitting(false)

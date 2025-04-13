@@ -44,7 +44,7 @@ export default function Testimonials() {
               <div className={`h-2 w-full bg-gradient-to-r ${testimonial.gradient}`}></div>
               <CardContent className="p-6 pt-8">
                 <Quote className="h-8 w-8 text-muted-foreground/30 mb-4" />
-                <p className="text-foreground italic mb-6">"{testimonial.quote}"</p>
+                <p className="text-foreground italic mb-6">&quot;{testimonial.quote}&quot;</p>
                 <div className="flex items-center">
                   <div
                     className={`w-10 h-10 rounded-full bg-gradient-to-r ${testimonial.gradient} flex items-center justify-center text-white font-bold`}
