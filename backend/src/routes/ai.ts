@@ -235,25 +235,22 @@ declare module "hono"  {
       messages: [
         {
           role: 'system',
-          content: `You are a helpful freelancer assistant. Respond only in strict JSON format.`,
-        },
-        {
-          role: 'user',
           content: `
-  Write a personalized, concise, and compelling proposal for this freelancer.
-  
-  Return in this format:
-  {
-    "proposal": "Your proposal here"
-  }
-  
-  Project:
-  ${project}
-  
-  Portfolio:
-  ${portfolio}
-  
-  Tone: "${tone || 'professional'}"
+          Respond ONLY with this format:
+          
+          {
+            "proposal": "..."
+          }
+          
+          Do NOT add any commentary or explanation.
+          
+          Project:
+          ${project}
+          
+          Portfolio:
+          ${portfolio}
+          
+          Tone: "${tone || 'professional'}"
           `
         }
       ]
@@ -401,11 +398,11 @@ export async function readAIResponse(result: any): Promise<string> {
     }
   });
   
-  ais.post('/generate-trust-score', async (c) => {
+  ais.post('/generate-trust-score/:type', async (c) => {
     const ai = c.get('AIs');
-  
+    const userId=c.req.query("id");
     const body = await c.req.json();
-    const { userType, userId } = body;
+    const userType: string = c.req.param('type');
   
     if (!userType || (userType !== 'client' && userType !== 'freelancer')) {
       return c.json({ error: 'Invalid or missing userType (must be "client" or "freelancer")' }, 400);
@@ -424,7 +421,7 @@ export async function readAIResponse(result: any): Promise<string> {
           .select()
           .from(freelancers)
           .innerJoin(users, eq(freelancers.userId, users.id))
-          .where(eq(freelancers.userId, userId));
+          .where(eq(freelancers.userId, typeof userId === 'string' ? userId : ''));
   
         if (!freelancerData) return c.json({ error: 'Freelancer not found' }, 404);
   
@@ -437,7 +434,7 @@ export async function readAIResponse(result: any): Promise<string> {
           .select()
           .from(clients)
           .innerJoin(users, eq(clients.userId, users.id))
-          .where(eq(clients.userId, userId));
+          .where(eq(clients.userId, typeof userId === 'string' ? userId : String(userId)));
   
         if (!clientData) return c.json({ error: 'Client not found' }, 404);
   

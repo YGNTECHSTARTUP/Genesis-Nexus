@@ -49,6 +49,18 @@ export default function Header() {
         >
           Generate Timeline
         </Link>
+        <Link
+          href="/geneproposal"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Generate Proposal
+        </Link>
+        <Link
+          href="/bestthree"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          BEST FREELANCER
+        </Link>
       </nav>
       <div className="flex items-center space-x-4">
         <ModeToggle />

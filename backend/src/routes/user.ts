@@ -6,6 +6,7 @@ import { users, freelancers, clients ,projects, requests, reviews, projectTimeli
 import type { User } from '@clerk/backend';
 import { eq, like } from 'drizzle-orm';
 import { devAuthMiddleware } from '../middleware/newAuth';
+import { json } from 'drizzle-orm/gel-core';
 declare module 'hono' {
     interface ContextVariableMap {
       authUser: User;
@@ -20,8 +21,9 @@ user.post('/register',async (c)=>{
     // // const user = c.get('authUser') as User;
     // const clerkUserId = user.id;
     // const profilePicture = user.imageUrl ?? '';
-    const body = await c.req.json();
-    const { userId, imageUrl } = await body;
+    const data=await c.req.json();
+    const body = JSON.parse(data);
+    const { userId, profilePicture } = await body;
     const {
       
         fullName,
@@ -52,7 +54,7 @@ user.post('/register',async (c)=>{
           username,
           email,
           phoneNumber,
-          profilePicture:imageUrl,
+          profilePicture,
           country,
           city,
           languagesSpoken,
@@ -179,17 +181,62 @@ user.get('/freelancer/:name', async (c) => {
 });
 
 user.post('/project', async (c) => {
-    // const user = c.get('authUser') as User;
-    // const clientId = user.id; // clerk ID == users.id
-    const clientId = c.req.query("id");
-  
-    const body = await c.req.json();
-  
-    const {
+  const clientId = c.req.query("id");
+  const body = await c.req.json();
+
+  const {
+    title,
+    description,
+    requiredSkills = [],
+    budget = 0,
+    experienceLevel,
+    startDate,
+    duration,
+    numFreelancers = 1,
+    collaborationStyle,
+    communicationTools,
+    visibility,
+  }: {
+    title: string;
+    description: string;
+    requiredSkills?: string[];
+    budget?: number;
+    experienceLevel?: 'beginner' | 'intermediate' | 'expert';
+    startDate?: string;
+    duration?: string;
+    numFreelancers?: number;
+    collaborationStyle?: 'async' | 'sync' | 'mixed';
+    communicationTools?: string[];
+    visibility?: 'invite-only' | 'public';
+  } = body;
+
+  // 🧠 Basic AI logic: Budget vs Requirements
+  const baseRate = {
+    beginner: 100,
+    intermediate: 250,
+    expert: 500
+  };
+
+  const skillCostFactor = 5;
+  const minExpected = baseRate[experienceLevel || 'beginner'] * numFreelancers;
+  const skillBonus = requiredSkills.length * skillCostFactor;
+
+  const expectedMinBudget = minExpected + skillBonus;
+
+  if (budget < expectedMinBudget) {
+    return c.json({
+      error: `Budget too low. For ${experienceLevel} level and ${requiredSkills.length} skills, minimum recommended is $${expectedMinBudget}`,
+      suggestedMinBudget: expectedMinBudget,
+    }, 400);
+  }
+
+  try {
+    await db.insert(projects).values({
+      clientId,
       title,
       description,
       requiredSkills,
-      budget,
+      budget: budget.toString(),
       experienceLevel,
       startDate,
       duration,
@@ -197,41 +244,15 @@ user.post('/project', async (c) => {
       collaborationStyle,
       communicationTools,
       visibility,
-    }: {
-      title: string;
-      description: string;
-      requiredSkills?: string[];
-      budget?: number;
-      experienceLevel?: 'beginner' | 'intermediate' | 'expert';
-      startDate?: string;
-      duration?: string;
-      numFreelancers?: number;
-      collaborationStyle?: 'async' | 'sync' | 'mixed';
-      communicationTools?: string[];
-      visibility?: 'invite-only' | 'public';
-    } = body;
-  
-    try {
-      await db.insert(projects).values({
-        clientId,
-        title,
-        description,
-        requiredSkills,
-        budget: budget !== undefined ? budget.toString() : undefined,
-        experienceLevel,
-        startDate,
-        duration,
-        numFreelancers,
-        collaborationStyle,
-        communicationTools,
-        visibility,
-      });
-      return c.json({ success: true });
-    } catch (err) {
-      console.error('[Create Project Error]', err);
-      return c.json({ error: 'Project creation failed' }, 500);
-    }
-  });
+    });
+
+    return c.json({ success: true });
+  } catch (err) {
+    console.error('[Create Project Error]', err);
+    return c.json({ error: 'Project creation failed' }, 500);
+  }
+});
+
   user.get('/projects', async (c) => {
     // const user = c.get('authUser') as User;
     const clientId =c.req.query("id");
