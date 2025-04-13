@@ -1,18 +1,21 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
+// import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/onboarding-form/components/ui/form"
 import { Input } from "@/onboarding-form/components/ui/input"
 import { Textarea } from "@/onboarding-form/components/ui/textarea"
 import { Button } from "@/onboarding-form/components/ui/button"
 import { PlusCircle, X } from "lucide-react"
-import { useState } from "react"
+import {  useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { Label } from "@/onboarding-form/components/ui/label"
+import Link from "next/link"
 
 export function OnboardingStepSix() {
-  const { nextStep } = useOnboardingForm()
+  // const { nextStep } = useOnboardingForm()
   const form = useFormContext()
   const userType = form.watch("userType")
   const [portfolioLink, setPortfolioLink] = useState("")
@@ -29,7 +32,7 @@ export function OnboardingStepSix() {
 
       new URL(url)
       return true
-    } catch (e) {
+    } catch (e:any) {
       return false
     }
   }
@@ -63,7 +66,7 @@ export function OnboardingStepSix() {
     const currentLinks = form.getValues("portfolioLinks") || []
     form.setValue(
       "portfolioLinks",
-      currentLinks.filter((_, i) => i !== index),
+      currentLinks.filter((_: any, i: number) => i !== index),
     )
   }
 
@@ -130,17 +133,17 @@ export function OnboardingStepSix() {
           </div>
 
           <div className="space-y-2">
-            {form.watch("portfolioLinks")?.map((link, index) => (
+            {form.watch("portfolioLinks")?.map((link: any, index: number) => (
               <div key={index} className="flex items-center justify-between p-2 border rounded-md">
-                <a
+                <Link
                   href={link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sm text-blue-600 hover:underline truncate max-w-[80%]"
                 >
                   {link}
-                </a>
-                <Button type="button" variant="ghost" size="sm" onClick={() => removePortfolioLink(index)}>
+                </Link>
+                <Button type="button" variant="ghost" size="sm" onClick={() => removePortfolioLink(index as number)}>
                   <X className="h-4 w-4" />
                 </Button>
               </div>

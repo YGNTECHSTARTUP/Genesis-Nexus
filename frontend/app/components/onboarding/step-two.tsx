@@ -1,6 +1,6 @@
 "use client"
 
-import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
+// import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/onboarding-form/components/ui/form"
 import { Input } from "@/onboarding-form/components/ui/input"
@@ -9,7 +9,7 @@ import { useState } from "react"
 import { useFormContext } from "react-hook-form"
 
 export function OnboardingStepTwo() {
-  const { nextStep } = useOnboardingForm()
+  // const { nextStep } = useOnboardingForm()
   const form = useFormContext()
   const userType = form.watch("userType")
   const [sliderValue, setSliderValue] = useState<number>(form.getValues("experienceYears") || 0)
@@ -21,7 +21,7 @@ export function OnboardingStepTwo() {
         <div className="space-y-6">
           <div className="space-y-2 text-center">
             <h2 className="text-2xl font-bold">Client Information</h2>
-            <p className="text-muted-foreground">Let's set up your client profile</p>
+            <p className="text-muted-foreground">Let&apos;s set up your client profile</p>
           </div>
 
           <FormField

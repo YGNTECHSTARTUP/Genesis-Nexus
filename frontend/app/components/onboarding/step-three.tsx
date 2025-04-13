@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
+// import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/onboarding-form/components/ui/form"
 import { Input } from "@/onboarding-form/components/ui/input"
@@ -44,7 +44,7 @@ const AVAILABLE_SKILLS = [
 ]
 
 export function OnboardingStepThree() {
-  const { nextStep } = useOnboardingForm()
+  // const { nextStep } = useOnboardingForm()
   const form = useFormContext()
   const userType = form.watch("userType")
 
@@ -61,7 +61,7 @@ export function OnboardingStepThree() {
         <div className="space-y-6">
           <div className="space-y-2 text-center">
             <h2 className="text-2xl font-bold">What kind of work do you need?</h2>
-            <p className="text-muted-foreground">Tell us about the skills you're looking for</p>
+            <p className="text-muted-foreground">Tell us about the skills you&apos;re looking for</p>
           </div>
 
           <FormField

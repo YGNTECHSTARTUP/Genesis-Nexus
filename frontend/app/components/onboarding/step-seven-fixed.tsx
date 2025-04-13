@@ -1,19 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 
-import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
+// import { useOnboardingForm } from "@/app/lib/hooks/use-onboarding-form"
 import { OnboardingNavigation } from "./onboarding-navigation"
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/onboarding-form/components/ui/form"
 import {Input} from "@/onboarding-form/components/ui/input"
 import {Button} from "@/onboarding-form/components/ui/button"
 import { PlusCircle, X } from "lucide-react"
-import { useState } from "react"
+import { JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import {Textarea} from "@/onboarding-form/components/ui/textarea"
 import { Label } from "@/onboarding-form/components/ui/label"
 
 export function OnboardingStepSeven() {
-  const { nextStep } = useOnboardingForm()
+  // const { nextStep } = useOnboardingForm()
   const form = useFormContext()
   const userType = form.watch("userType")
   const [education, setEducation] = useState({
@@ -42,7 +43,7 @@ export function OnboardingStepSeven() {
     const currentEducation = form.getValues("education") || []
     form.setValue(
       "education",
-      currentEducation.filter((_, i) => i !== index),
+      currentEducation.filter((_: any, i: number) => i !== index),
     )
   }
 
@@ -144,7 +145,7 @@ export function OnboardingStepSeven() {
           </Button>
 
           <div className="space-y-2 mt-4">
-            {form.watch("education")?.map((edu, index) => (
+            {form.watch("education")?.map((edu: { institution: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; degree: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; fieldOfStudy: any; from: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined; to: string | number | bigint | boolean | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<string | number | bigint | boolean | ReactPortal | ReactElement<unknown, string | JSXElementConstructor<any>> | Iterable<ReactNode> | null | undefined> | null | undefined }, index: Key | null | undefined) => (
               <div key={index} className="p-3 border rounded-md">
                 <div className="flex justify-between items-start">
                   <div>
@@ -159,7 +160,7 @@ export function OnboardingStepSeven() {
                       </p>
                     )}
                   </div>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => removeEducation(index)}>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removeEducation(index as number)}>
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
