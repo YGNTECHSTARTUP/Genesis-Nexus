@@ -1,9 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useForm, FormProvider } from "react-hook-form"
 import { Loader2 } from "lucide-react"
+// import { createHash } from "crypto";
+import { v5 as uuidv5 } from "uuid";
+
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -14,17 +17,22 @@ import { BasicInfoForm } from "./registeration/basic-form-info"
 import {ClientInfoForm} from "./registeration/client-info-form"
 import { FreelancerInfoForm } from "./registeration/freelancer-info-form"
 import { toast } from "sonner"
+import { useUser } from "@clerk/nextjs";
+// import { currentUser } from "@clerk/nextjs/server"
 
 
 
-// Mock user ID and profile picture that would come from auth provider like Clerk
-const MOCK_USER_ID = "user_" + Math.random().toString(36).substring(2, 9)
-const MOCK_PROFILE_PICTURE = ""
+// // Mock user ID and profile picture that would come from auth provider like Clerk
+// const user = await currentUser();
+// const userID = user?.id || "";
+// const profilePicture = user?.imageUrl;
 
 export type UserType = "client" | "freelancer"
 
 export type RegistrationFormData = {
+  
   // Basic info
+  userId:string
   fullName: string
   username: string
   email: string
@@ -51,6 +59,8 @@ export type RegistrationFormData = {
 }
 
 const defaultValues: RegistrationFormData = {
+  
+  userId:"",
   fullName: "",
   username: "",
   email: "",
@@ -73,6 +83,24 @@ const defaultValues: RegistrationFormData = {
 }
 
 export function RegistrationForm() {
+  const { user } = useUser();
+  const userID = user?.id || "";
+  const profilePicture = user?.imageUrl || "";
+  const NAMESPACE = "10b6a5f6-eae3-4d2e-912b-cc6e0a5f5a7b"; // your fixed namespace UUID
+
+function convertClerkIdToUuid(clerkId: string): string {
+  return uuidv5(clerkId, NAMESPACE);
+}
+
+const uuid = convertClerkIdToUuid(userID);
+useEffect(()=>{
+localStorage.setItem("userId", uuid)
+},[])
+  
+  // if (!isLoaded) return <div>Loading...</div>;
+
+
+  
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -88,7 +116,7 @@ export function RegistrationForm() {
   const handleNext = async () => {
     const fields = step === 1 ? ["fullName", "username", "email", "userType"] : []
 
-    const isValid = await form.trigger(fields as any)
+    const isValid = await form.trigger(fields as (keyof RegistrationFormData)[])
     if (isValid) setStep((prev) => Math.min(prev + 1, totalSteps))
   }
 
@@ -101,25 +129,38 @@ export function RegistrationForm() {
 
     try {
       // Add the mock user ID and profile picture
+
       const payload = {
         ...data,
-        userId: MOCK_USER_ID,
-        profilePicture: MOCK_PROFILE_PICTURE,
+        userId:uuid,
+        profilePicture:profilePicture,
+        experienceYears:data.experienceYears ?? 0,  // default to 0
+        hourlyRate:data.hourlyRate ?? null,
+        preferredStartDate:data.preferredStartDate || null,
       }
-
-      const response = await fetch("/api/register", {
+      console.log(payload);
+      let url:string =""
+      if(data.userType==='client'){
+         url="https://backend.eevanasivabalaji.workers.dev/user/register"
+      }
+      else{
+        url="https://backend.eevanasivabalaji.workers.dev/user/register-freelancer"
+      }
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       })
-
+    
       if (!response.ok) {
         throw new Error("Registration failed")
       }
 
       toast("Registration Successfull")
+      console.log(response)
+
 
       // Redirect to dashboard page
       router.push("/dashboard")

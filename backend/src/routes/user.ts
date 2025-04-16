@@ -2,7 +2,7 @@ import {Hono} from 'hono'
 // import {authMiddleware} from '../middleware/auth';
 // devAuthMiddleware
 import { db } from '../db';
-import { users, freelancers, clients ,projects, requests, reviews, projectTimelines} from '../schema';
+import { users, freelancers, clients ,projects, requests, reviews, projectTimelines, projectQuestions} from '../schema';
 import type { User } from '@clerk/backend';
 import { eq, like } from 'drizzle-orm';
 import { devAuthMiddleware } from '../middleware/newAuth';
@@ -17,101 +17,125 @@ const user =new Hono();
 // user.use(devAuthMiddleware);
 
 
-user.post('/register',async (c)=>{
-    // // const user = c.get('authUser') as User;
-    // const clerkUserId = user.id;
-    // const profilePicture = user.imageUrl ?? '';
-    const data=await c.req.json();
-    const body = JSON.parse(data);
-    const { userId, profilePicture } = await body;
-    const {
-      
-        fullName,
-        username,
-        email,
-        phoneNumber,
-        country,
-        city,
-        languagesSpoken,
-        userType, // 'freelancer' | 'client'
-        userProfile
-      }: {
-       
-        fullName: string;
-        username: string;
-        email: string;
-        phoneNumber?: string;
-        country?: string;
-        city?: string;
-        languagesSpoken?: string[];
-        userType: 'freelancer' | 'client';
-        userProfile?: string;
-      } = body;
-      try {
-        await db.insert(users).values({
-          id:userId,
-          fullName,
-          username,
-          email,
-          phoneNumber,
-          profilePicture,
-          country,
-          city,
-          languagesSpoken,
-          userType,
-          userProfile
-        });
-        if (userType === 'freelancer') {
-            const {
-              experienceYears,
-              portfolioLinks,
-              hourlyRate,
-              availability,
-              preferredStartDate,
-              freelancerType,
-              certifications,
-              tools,
-              workStyle
-            }: {
-              experienceYears: number;
-              portfolioLinks?: string[];
-              hourlyRate?: number;
-              availability?: 'part-time' | 'full-time' | 'custom';
-              preferredStartDate?: string;
-              freelancerType?: string;
-              certifications?: string[];
-              tools?: string[];
-              workStyle?: 'async' | 'sync' | 'agile' | 'other';
-            } = body;
-      
-            await db.insert(freelancers).values({
-              userId:userId,
-              experienceYears,
-              portfolioLinks,
-              hourlyRate:hourlyRate !== undefined ? hourlyRate.toString() : undefined,
-              availability,
-              preferredStartDate,
-              freelancerType,
-              certifications,
-              tools,
-              workStyle
-            });
-          } else if (userType === 'client') {
-            const { companyName }: { companyName: string } = body;
-      
-            await db.insert(clients).values({
-              userId: userId,
-              companyName
-            });
-          }
-      
-          return c.json({ success: true });
-        } catch (err) {
-          console.error('[Register Error]', err);
-          return c.json({ error: 'Registration failed' }, 500);
-        }
 
+
+user.post('/register', async (c) => {
+  try {
+    const data = await c.req.json();
+
+    const {
+      userId,
+      profilePicture,
+      fullName,
+      username,
+      email,
+      phoneNumber,
+      country,
+      city,
+      languagesSpoken = [],
+      userType,
+      userProfile,
+      companyName
+    } = data
+
+    if (userType !== 'client') {
+      return c.json({ error: 'Only client registration is allowed here' }, 400)
+    }
+
+    await db.insert(users).values({
+      id: userId,
+      fullName,
+      username,
+      email,
+      phoneNumber,
+      profilePicture,
+      country,
+      city,
+      languagesSpoken,
+      userType,
+      userProfile
+    })
+
+    await db.insert(clients).values({
+      userId,
+      companyName
+    })
+
+    return c.json({ success: true })
+  } catch (err: any) {
+    console.error('[Register Error]', err)
+    return c.json({ error: err.message }, 500)
+  }
 })
+
+user.post('/register-freelancer', async (c) => {
+  try {
+    const data = await c.req.json();
+
+    const {
+      userId,
+      profilePicture,
+      fullName,
+      username,
+      email,
+      phoneNumber,
+      country,
+      city,
+      languagesSpoken = [],
+      userType,
+      userProfile,
+      experienceYears,
+      portfolioLinks = [],
+      hourlyRate,
+      availability,
+      preferredStartDate,
+      freelancerType,
+      certifications = [],
+      tools = [],
+      workStyle
+    } = data;
+
+    if (userType !== 'freelancer') {
+      return c.json({ error: 'Only freelancer registration is allowed here' }, 400);
+    }
+
+    await db.insert(users).values({
+      id: userId,
+      fullName,
+      username,
+      email,
+      phoneNumber,
+      profilePicture,
+      country,
+      city,
+      languagesSpoken,
+      userType,
+      userProfile
+    });
+
+    await db.insert(freelancers).values({
+      userId,
+      experienceYears: experienceYears ?? 0,
+      portfolioLinks: portfolioLinks ?? [],
+      hourlyRate: hourlyRate ?? 0, // <--- Avoid null, use 0 instead or default rate
+      availability,
+      preferredStartDate: preferredStartDate ? new Date(preferredStartDate) : null,
+      freelancerType,
+      certifications: certifications ?? [],
+      tools: tools ?? [],
+      workStyle
+    });
+
+    return c.json({ success: true });
+  } catch (err: any) {
+    console.error('[Freelancer Register Error]', err);
+    return c.json({ error: err.message }, 500);
+  }
+});
+
+
+
+
 user.get('/freelancers',async(c)=>{
     try {
         const allFreelancers = await db
@@ -139,10 +163,10 @@ user.get('/freelancers',async(c)=>{
       }
     
 })
-user.get('/freelancer/:name', async (c) => {
-  const { name } = c.req.param();
+user.get('/freelancer/:id', async (c) => {
+  const { id } = c.req.param();
 
-  if (!name) {
+  if (!id) {
     return c.json({ error: 'Name parameter is required' }, 400);
   }
 
@@ -166,7 +190,7 @@ user.get('/freelancer/:name', async (c) => {
       .innerJoin(users, eq(users.id, freelancers.userId))
       .where(
         // Use ILIKE for case-insensitive partial match if your DB supports it (e.g. PostgreSQL)
-        like(users.fullName, `%${name}%`)
+        like(users.id, `%${id}%`)
       );
 
     if (matchedFreelancers.length === 0) {
@@ -179,6 +203,7 @@ user.get('/freelancer/:name', async (c) => {
     return c.json({ error: 'Failed to search freelancers' }, 500);
   }
 });
+
 
 user.post('/project', async (c) => {
   const clientId = c.req.query("id");
@@ -210,17 +235,15 @@ user.post('/project', async (c) => {
     visibility?: 'invite-only' | 'public';
   } = body;
 
-  // 🧠 Basic AI logic: Budget vs Requirements
+  // 🧠 Budget validation
   const baseRate = {
     beginner: 100,
     intermediate: 250,
     expert: 500
   };
-
   const skillCostFactor = 5;
   const minExpected = baseRate[experienceLevel || 'beginner'] * numFreelancers;
   const skillBonus = requiredSkills.length * skillCostFactor;
-
   const expectedMinBudget = minExpected + skillBonus;
 
   if (budget < expectedMinBudget) {
@@ -230,28 +253,116 @@ user.post('/project', async (c) => {
     }, 400);
   }
 
+  // 🧠 Fetch AI questions
+  let questions: string[] = [];
   try {
-    await db.insert(projects).values({
-      clientId,
-      title,
-      description,
-      requiredSkills,
-      budget: budget.toString(),
-      experienceLevel,
-      startDate,
-      duration,
-      numFreelancers,
-      collaborationStyle,
-      communicationTools,
-      visibility,
+    const ai = c.get('AIs');
+    const prompt = `You are an AI assistant that generates job interview questions.
+
+Generate a list of questions for a job interview based on the following parameters:
+
+- Job role: ${title}
+- Experience level: ${experienceLevel}
+- Tech stack: ${requiredSkills.join(', ')}
+- Question focus: technical
+- Number of questions: 10
+
+
+The questions should be:
+
+- Clear, concise, and suitable for a spoken format (used by a voice assistant).
+- Free of special characters like "/", "*", "\", quotes, or anything that may break a speech engine.
+- Strictly in English.
+- Tailored to the specified tech stack and experience level.
+
+Return ONLY a single valid JSON array like:
+
+["Question 1", "Question 2", "Question 3", "Question 4", "Question 5"]
+
+Do not include any explanation or formatting outside of the array.
+
+Thank you ❤️`;
+
+    const result = await ai.run('@cf/meta/llama-3.2-3b-instruct', {
+      messages: [{ role: 'user', content: prompt }]
     });
 
-    return c.json({ success: true });
+    questions = JSON.parse(result.response);
+  } catch (e) {
+    console.error('[Question Generation Error]', e);
+    return c.json({ error: 'Failed to generate questions' }, 500);
+  }
+
+  // ✅ Insert project & questions
+  try {
+    // Insert project and get the ID
+    const [newProject] = await db
+      .insert(projects)
+      .values({
+        clientId,
+        title,
+        description,
+        requiredSkills,
+        budget: budget.toString(),
+        experienceLevel,
+        startDate,
+        duration,
+        numFreelancers,
+        collaborationStyle,
+        communicationTools,
+        visibility,
+      })
+      .returning({ id: projects.id });
+
+    // Insert questions
+    const questionRows = questions.map((q) => ({
+      projectId: newProject.id,
+      question: q,
+    }));
+
+    await db.insert(projectQuestions).values(questionRows);
+
+    return c.json({ success: true, projectId: newProject.id });
   } catch (err) {
-    console.error('[Create Project Error]', err);
+    console.error('[Project or Question Insertion Error]', err);
     return c.json({ error: 'Project creation failed' }, 500);
   }
 });
+user.get('/client/:userId', async (c) => {
+  const userId = c.req.param('userId');
+
+  try {
+    const client = await db
+      .select({
+        id: users.id,
+        fullName: users.fullName,
+        username: users.username,
+        email: users.email,
+        phoneNumber: users.phoneNumber,
+        profilePicture: users.profilePicture,
+        country: users.country,
+        city: users.city,
+        languagesSpoken: users.languagesSpoken,
+        userType: users.userType,
+        userProfile: users.userProfile,
+        createdAt: users.createdAt,
+        companyName: clients.companyName
+      })
+      .from(users)
+      .innerJoin(clients, eq(users.id, clients.userId))
+      .where(eq(users.id, userId));
+
+    if (!client.length) {
+      return c.json({ error: 'Client not found' }, 404);
+    }
+
+    return c.json(client[0]);
+  } catch (err) {
+    console.error('[Get Client Error]', err);
+    return c.json({ error: 'Failed to fetch client data' }, 500);
+  }
+});
+
 
   user.get('/projects', async (c) => {
     // const user = c.get('authUser') as User;
@@ -269,7 +380,6 @@ user.post('/project', async (c) => {
       return c.json({ error: 'Failed to fetch projects' }, 500);
     }
   });
-  
   user.post('/requests', async (c) => {
     const clientId =c.req.query("id");
     const {  freelancerId, projectId, message } = await c.req.json()
@@ -297,7 +407,6 @@ user.post('/project', async (c) => {
   
     return c.json({ requests: result })
   })
-  
   user.post('/reviews', async (c) => {
   
     const { reviewerId, revieweeId, rating, comment } = await c.req.json()
@@ -356,6 +465,26 @@ user.post('/project', async (c) => {
       return c.json({ error: 'Failed to fetch timeline', details: error }, 500);
     }
   });
+  user.get('/questions', async (c) => {
+    const projectId = c.req.query('projectId');
   
+    if (!projectId) {
+      return c.json({ error: 'Missing projectId query parameter' }, 400);
+    }
+  
+    try {
+      const rows = await db
+        .select({ question: projectQuestions.question })
+        .from(projectQuestions)
+        .where(eq(projectQuestions.projectId, projectId));
+  
+      const questions = rows.map(row => row.question);
+  
+      return c.json(questions);
+    } catch (err) {
+      console.error('[Fetch Questions Error]', err);
+      return c.json({ error: 'Failed to fetch questions' }, 500);
+    }
+  });
   
 export default user;

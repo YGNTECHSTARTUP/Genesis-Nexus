@@ -3,15 +3,26 @@ import indes from './routes/indes'
 import ais from './routes/ai'
 import user from './routes/user';
 import { cors } from 'hono/cors';
+import { env } from 'hono/adapter';
 
 
 const app = new Hono()
 app.use("*", cors({
-  origin: ["http://localhost:3000","http://localhost:3001"], 
+  origin: "*", 
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Authorization', 'Content-Type', 'X-Requested-With'],
   credentials:false
 }))
+declare module "hono"  {
+    interface ContextVariableMap {
+      AIs: Ai;
+    }
+  }
+  app.use("*",async(c,next)=>{
+    const { AI } = env<{ AI: Ai }>(c);
+    c.set('AIs',AI);
+    await next();
+  })
 app.route('/user',user)
 app.route('/ai',ais);
 

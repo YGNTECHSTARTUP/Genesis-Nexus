@@ -136,6 +136,17 @@ export const projects = pgTable("projects", {
   visibility: visibilityEnum("visibility"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
+export const projectQuestions = pgTable("project_questions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  projectId: uuid("project_id")
+    .references(() => projects.id, { onDelete: "cascade" })
+    .notNull(),
+
+  question: text("question").notNull(),
+
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
 
 // Trust Scores
 export const trustScores = pgTable("trust_scores", {

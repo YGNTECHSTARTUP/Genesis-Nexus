@@ -483,5 +483,167 @@ export async function readAIResponse(result: any): Promise<string> {
     }
   });
   
+ais.post('/generate-question',async(c)=>{
+  const ai = c.get('AIs');
+  const {role,level,techstack,type,amount,requirement} = await c.req.json();
+  console.log(requirement);
+  try{
+    const prompt =` You are an AI assistant that generates job interview questions.
+
+    Generate a list of questions for a job interview based on the following parameters:
+    
+    - Job role: ${role}
+    - Experience level: ${level}
+    - Tech stack: ${techstack}
+    - Question focus: ${type} (e.g., technical, behavioral, or balanced)
+    - Number of questions: ${amount}
+    
+    The questions should be:
+    
+    - Clear, concise, and suitable for a spoken format (used by a voice assistant).
+    - Free of special characters like "/", "*", "\", quotes, or anything that may break a speech engine.
+    - Strictly in English.
+    - Tailored to the specified tech stack and experience level.
+    - Balanced according to the specified question type (technical or behavioral).
+    
+    Return ONLY a single valid JSON array, like this:
+    
+    ["Question 1", "Question 2", "Question 3", "Question 4", "Question 5"]
+    
+    Do not include any explanation or formatting outside of the array.
+    
+    Thank you ❤️`
+    
+      const result = await ai.run('@cf/meta/llama-3.2-3b-instruct',{
+   
+        messages: [{ role: 'user', content: prompt }],
+      })
+      // const { response } = result;
+      // const interview={
+      //   role,type,level,
+      //   techstack:techstack.split(','),
+      //   questions:JSON.parse(response),
+       
+      // }
+      try {
+        const parsed = JSON.parse(result.response);
+        return c.json(parsed);
+      } catch (e) {
+        console.error("Failed to parse response:", result.response);
+        return c.json({ success: false, error: "Invalid JSON format in AI response" }, { status: 500 });
+      }
+      
+      //status
+  }
+  catch(error){
+    console.error(error);
+    return c.json({success:false,error},{status:500})
+  }
+})
+ais.get('/generate-learning-path', async (c) => {
+  const ai = c.get('AIs');
+  const { goal } = await c.req.json();
+
+  if (!goal) {
+    return c.json({ error: 'Learning goal is required.' }, 400);
+  }
+
+  const result = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
+    messages: [
+      {
+        role: 'system',
+        content: `You are a learning path generator.
+Return ONLY valid JSON, strictly formatted like:
+[
+  { "module": "Introduction to Java", "estimatedDays": 3 },
+  { "module": "OOP in Java", "estimatedDays": 5 },
+  ...
+]
+NO explanations. Just JSON.
+Keep the structure compact, modular, and beginner-friendly.`
+      },
+      {
+        role: 'user',
+        content: goal
+      }
+    ]
+  });
+
+  const text = await readAIResponse(result);
+
+  try {
+    const parsed = JSON.parse(text);
+    return c.json({ learningPath: parsed });
+  } catch (e) {
+    return c.json({ error: 'AI returned invalid JSON', raw: text }, 500);
+  }
+});
+// src/routes/ai.ts
+
+
+ais.post('/ai/generate-lesson', async (c) => {
+  const ai = c.get('AIs');
+  const { topic } = await c.req.json();
+
+  if (!topic) {
+    return c.json({ error: 'Topic is required' }, 400);
+  }
+
+  const messages = [
+    {
+      role: 'system',
+      content: `You are an expert instructor.
+
+Respond ONLY with valid JSON using this strict format:
+
+{
+  "lesson": "One-paragraph explanation of the topic syntax and example. No markdown, no special characters, no line breaks.",
+  "quiz": [
+    {
+      "question": "A clear multiple choice question?",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "answer": "Correct option (must match one of the above exactly)"
+    }
+  ]
+}
+
+Do not include any text outside the JSON. Output must start with '{' and end with '}'.
+Never use markdown, code blocks, or extra quotation marks.`,
+    },
+    {
+      role: 'user',
+      content: `Generate a concise lesson and quiz for the topic: "${topic}"`,
+    },
+  ];
+
+  const result = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
+    messages,
+    temperature: 0.3,
+    stream: false,
+  });
+
+  let raw = result?.response?.trim();
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed.lesson && Array.isArray(parsed.quiz)) {
+      return c.json(parsed);
+    } else {
+      throw new Error('Invalid structure: lesson or quiz missing.');
+    }
+  } catch (err) {
+    return c.json({
+      error: 'Failed to parse lesson content',
+      raw,
+      details: err.message,
+    }, 500);
+  }
+});
+
+
+
+
+
+
 
 export default ais;
