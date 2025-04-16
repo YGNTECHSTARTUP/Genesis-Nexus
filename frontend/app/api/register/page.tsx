@@ -5,5 +5,5 @@ export default function RegisterApiPage() {
   redirect("/register")
 
   // This won't be rendered due to the redirect
-  return null
+  // return null
 }

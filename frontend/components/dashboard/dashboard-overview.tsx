@@ -2,20 +2,30 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowUpRight, Award, Briefcase, Clock, DollarSign, Star, Users } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowUpRight, CheckCircle, Clock, DollarSign, MessageSquare, Plus, Star, User } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RecentActivityList } from "@/components/dashboard/recent-activity"
 import { ProjectsList } from "@/components/dashboard/projects-list"
-import { SkillsChart } from "@/components/dashboard/skills-chart"
-import { EarningsChart } from "@/components/dashboard/earnings-chart"
+import { ProjectCreationForm } from "@/components/dashboard/project-creation-form"
+import { RequestProjectForm } from "@/components/dashboard/request-project-form"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Progress } from "@/components/ui/progress"
 
 export default function DashboardOverview() {
   const [userType, setUserType] = useState<"freelancer" | "client">("freelancer")
+  const [showProjectForm, setShowProjectForm] = useState(false)
+  const [showRequestForm, setShowRequestForm] = useState(false)
 
   // Toggle between freelancer and client view for demo purposes
   const toggleUserType = () => {
@@ -27,11 +37,46 @@ export default function DashboardOverview() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here&apos;s an overview of your {userType} account.</p>
+          <p className="text-muted-foreground">Welcome back! Here's your {userType} dashboard overview.</p>
         </div>
-        <Button onClick={toggleUserType} variant="outline">
-          Switch to {userType === "freelancer" ? "Client" : "Freelancer"} View
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={toggleUserType} variant="outline">
+            Switch to {userType === "freelancer" ? "Client" : "Freelancer"} View
+          </Button>
+          {userType === "client" ? (
+            <Dialog open={showProjectForm} onOpenChange={setShowProjectForm}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" /> Create Project
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Create New Project</DialogTitle>
+                  <DialogDescription>
+                    Define your project requirements to find the perfect freelancer.
+                  </DialogDescription>
+                </DialogHeader>
+                <ProjectCreationForm onSuccess={() => setShowProjectForm(false)} />
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <Dialog open={showRequestForm} onOpenChange={setShowRequestForm}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" /> Submit Request
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Submit Project Request</DialogTitle>
+                  <DialogDescription>Send a request to work on a client project.</DialogDescription>
+                </DialogHeader>
+                <RequestProjectForm onSuccess={() => setShowRequestForm(false)} />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
       </div>
 
       {userType === "freelancer" ? <FreelancerDashboard /> : <ClientDashboard />}
@@ -40,91 +85,159 @@ export default function DashboardOverview() {
 }
 
 function FreelancerDashboard() {
+  // Mock data for the freelancer profile
+  const freelancer = {
+    name: "Alex Johnson",
+    role: "Full Stack Developer",
+    avatar: "/placeholder.svg?height=64&width=64",
+    totalEarnings: "$4,550.32",
+    activeProjects: 4,
+    hoursLogged: 32.5,
+    hoursGoal: 40,
+    trustScore: 4.8,
+    skills: ["React", "Node.js", "TypeScript", "GraphQL", "MongoDB"],
+    completedProjects: 18,
+    topReviews: [
+      {
+        clientName: "Fashion Boutique",
+        clientAvatar: "/placeholder.svg?height=40&width=40&text=FB",
+        rating: 5,
+        comment: "Alex delivered exceptional work on our e-commerce website. Great communication and technical skills.",
+        date: "Oct 15, 2025",
+      },
+      {
+        clientName: "Health Tech Startup",
+        clientAvatar: "/placeholder.svg?height=40&width=40&text=HT",
+        rating: 4.5,
+        comment: "Very professional and delivered on time. Would work with again.",
+        date: "Sep 20, 2025",
+      },
+    ],
+  }
+
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Profile Overview Card */}
+        <Card className="md:col-span-1">
+          <CardHeader className="flex flex-row items-center pb-2">
+            <Avatar className="h-16 w-16 mr-4">
+              <AvatarImage src={freelancer.avatar || "/placeholder.svg"} alt={freelancer.name} />
+              <AvatarFallback>AJ</AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle>{freelancer.name}</CardTitle>
+              <CardDescription>{freelancer.role}</CardDescription>
+              <div className="flex items-center mt-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-3 w-3 ${
+                      star <= freelancer.trustScore ? "fill-primary text-primary" : "fill-muted text-muted"
+                    }`}
+                  />
+                ))}
+                <span className="ml-1 text-xs">{freelancer.trustScore}/5.0</span>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$4,550.32</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4</div>
-            <p className="text-xs text-muted-foreground">2 due this week</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Hours Logged</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">32.5h</div>
-            <p className="text-xs text-muted-foreground">This week (75% of goal)</p>
-            <Progress value={75} className="mt-2 h-1" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Trust Score</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">4.8/5.0</div>
-            <div className="flex items-center mt-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`h-3 w-3 ${star <= 4.8 ? "fill-primary text-primary" : "fill-muted text-muted"}`}
-                />
-              ))}
+          <CardContent className="pb-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Earnings</p>
+                <p className="font-medium">{freelancer.totalEarnings}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Active Projects</p>
+                <p className="font-medium">{freelancer.activeProjects}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Hours Logged</p>
+                <p className="font-medium">{freelancer.hoursLogged}h</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Completed</p>
+                <p className="font-medium">{freelancer.completedProjects}</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <p className="text-xs text-muted-foreground mb-1">
+                Weekly Hours ({freelancer.hoursLogged}/{freelancer.hoursGoal}h)
+              </p>
+              <Progress value={(freelancer.hoursLogged / freelancer.hoursGoal) * 100} className="h-1" />
+            </div>
+            <div className="mt-4">
+              <p className="text-xs font-medium mb-2">Skills</p>
+              <div className="flex flex-wrap gap-1">
+                {freelancer.skills.map((skill) => (
+                  <Badge key={skill} variant="outline" className="text-xs">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
             </div>
           </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/profile">
+                <User className="mr-2 h-4 w-4" />
+                View Full Profile
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Reviews Card */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Client Reviews</CardTitle>
+            <CardDescription>What clients are saying about your work</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {freelancer.topReviews.map((review, index) => (
+              <div key={index} className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center">
+                    <Avatar className="h-8 w-8 mr-2">
+                      <AvatarImage src={review.clientAvatar || "/placeholder.svg"} alt={review.clientName} />
+                      <AvatarFallback>{review.clientName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <span className="font-medium">{review.clientName}</span>
+                  </div>
+                  <div className="flex">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-4 w-4 ${
+                          star <= review.rating ? "fill-primary text-primary" : "fill-muted text-muted"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-sm">{review.comment}</p>
+                <p className="text-xs text-muted-foreground mt-2">{review.date}</p>
+              </div>
+            ))}
+          </CardContent>
+          <CardFooter>
+            <Button variant="ghost" className="w-full" size="sm">
+              View All Reviews
+            </Button>
+          </CardFooter>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Earnings Overview</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <EarningsChart />
-          </CardContent>
-        </Card>
-        <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Skills & Expertise</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <SkillsChart />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="projects">
+      <Tabs defaultValue="active-projects">
         <TabsList>
-          <TabsTrigger value="projects">Active Projects</TabsTrigger>
+          <TabsTrigger value="active-projects">Active Projects</TabsTrigger>
+          <TabsTrigger value="available-projects">Available Projects</TabsTrigger>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-          <TabsTrigger value="opportunities">Opportunities</TabsTrigger>
         </TabsList>
-        <TabsContent value="projects" className="mt-4">
+        <TabsContent value="active-projects" className="mt-4">
           <ProjectsList userType="freelancer" />
         </TabsContent>
-        <TabsContent value="activity" className="mt-4">
-          <RecentActivityList userType="freelancer" />
-        </TabsContent>
-        <TabsContent value="opportunities" className="mt-4">
+        <TabsContent value="available-projects" className="mt-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
               <Card key={i}>
@@ -160,127 +273,149 @@ function FreelancerDashboard() {
             ))}
           </div>
         </TabsContent>
+        <TabsContent value="activity" className="mt-4">
+          <RecentActivityList userType="freelancer" />
+        </TabsContent>
       </Tabs>
     </>
   )
 }
 
 function ClientDashboard() {
+  // Mock data for the client profile
+  const client = {
+    name: "Sarah Williams",
+    companyName: "Acme Inc.",
+    avatar: "/placeholder.svg?height=64&width=64",
+    activeProjects: 5,
+    totalSpent: "$12,450.80",
+    freelancers: 8,
+    projectCompletion: 78,
+    completedProjects: 12,
+    ongoingProjects: [
+      {
+        id: "1",
+        title: "E-commerce Website Redesign",
+        progress: 65,
+        dueDate: "Oct 15, 2025",
+        assignedTo: ["Sarah C.", "Michael B."],
+        budget: "$8,500",
+      },
+      {
+        id: "2",
+        title: "Mobile App Development",
+        progress: 40,
+        dueDate: "Nov 30, 2025",
+        assignedTo: ["James L.", "Emma W."],
+        budget: "$12,000",
+      },
+    ],
+  }
+
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Profile Overview Card */}
+        <Card className="md:col-span-1">
+          <CardHeader className="flex flex-row items-center pb-2">
+            <Avatar className="h-16 w-16 mr-4">
+              <AvatarImage src={client.avatar || "/placeholder.svg"} alt={client.name} />
+              <AvatarFallback>SW</AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle>{client.name}</CardTitle>
+              <CardDescription>{client.companyName}</CardDescription>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">3 in progress, 2 pending</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$12,450.80</div>
-            <p className="text-xs text-muted-foreground">$3,200 this month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Freelancers</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">8</div>
-            <p className="text-xs text-muted-foreground">Across 5 projects</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Project Completion</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">78%</div>
-            <Progress value={78} className="mt-2 h-1" />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
-            <CardTitle>Budget Overview</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <EarningsChart isClient />
-          </CardContent>
-        </Card>
-        <Card className="col-span-3">
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>Team Overview</CardTitle>
-            <Link href="/dashboard/freelancers">
-              <Button variant="ghost" size="sm">
-                View All
-              </Button>
-            </Link>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { name: "Sarah Chen", role: "UI/UX Designer", img: "/placeholder.svg?height=40&width=40" },
-                { name: "Michael Brown", role: "Full Stack Developer", img: "/placeholder.svg?height=40&width=40" },
-                { name: "Emma Wilson", role: "Project Manager", img: "/placeholder.svg?height=40&width=40" },
-                { name: "James Lee", role: "Backend Developer", img: "/placeholder.svg?height=40&width=40" },
-              ].map((person) => (
-                <div key={person.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={person.img} />
-                      <AvatarFallback>
-                        {person.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-medium">{person.name}</p>
-                      <p className="text-xs text-muted-foreground">{person.role}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`h-3 w-3 ${star <= 4 ? "fill-primary text-primary" : "fill-muted text-muted"}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
+          <CardContent className="pb-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Active Projects</p>
+                <p className="font-medium">{client.activeProjects}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Total Spent</p>
+                <p className="font-medium">{client.totalSpent}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Freelancers</p>
+                <p className="font-medium">{client.freelancers}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">Completed</p>
+                <p className="font-medium">{client.completedProjects}</p>
+              </div>
+            </div>
+            <div className="mt-4">
+              <p className="text-xs text-muted-foreground mb-1">Overall Project Completion</p>
+              <Progress value={client.projectCompletion} className="h-1" />
             </div>
           </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="w-full" asChild>
+              <Link href="/dashboard/profile">
+                <User className="mr-2 h-4 w-4" />
+                View Full Profile
+              </Link>
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Ongoing Projects Summary */}
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Ongoing Projects</CardTitle>
+            <CardDescription>Projects currently in progress</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {client.ongoingProjects.map((project) => (
+              <div key={project.id} className="border rounded-lg p-4">
+                <div className="flex justify-between mb-2">
+                  <h3 className="font-medium">{project.title}</h3>
+                  <Badge variant="outline">{project.budget}</Badge>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Progress</span>
+                    <span className="font-medium">{project.progress}%</span>
+                  </div>
+                  <Progress value={project.progress} className="h-1" />
+                </div>
+                <div className="flex justify-between mt-3 text-sm">
+                  <div className="flex items-center">
+                    <Clock className="h-3 w-3 mr-1 text-muted-foreground" />
+                    <span className="text-muted-foreground">Due: {project.dueDate}</span>
+                  </div>
+                  <div className="flex">
+                    <Button variant="ghost" size="sm">
+                      <MessageSquare className="h-3 w-3 mr-1" /> Message
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      Details <ArrowUpRight className="h-3 w-3 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+          <CardFooter>
+            <Button variant="ghost" className="w-full" size="sm">
+              View All Projects
+            </Button>
+          </CardFooter>
         </Card>
       </div>
 
-      <Tabs defaultValue="projects">
+      <Tabs defaultValue="my-projects">
         <TabsList>
-          <TabsTrigger value="projects">My Projects</TabsTrigger>
+          <TabsTrigger value="my-projects">My Projects</TabsTrigger>
+          <TabsTrigger value="freelancer-pool">Freelancer Pool</TabsTrigger>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-          <TabsTrigger value="talent">Talent Pool</TabsTrigger>
         </TabsList>
-        <TabsContent value="projects" className="mt-4">
+        <TabsContent value="my-projects" className="mt-4">
           <ProjectsList userType="client" />
         </TabsContent>
-        <TabsContent value="activity" className="mt-4">
-          <RecentActivityList userType="client" />
-        </TabsContent>
-        <TabsContent value="talent" className="mt-4">
+        <TabsContent value="freelancer-pool" className="mt-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
               <Card key={i}>
@@ -292,7 +427,7 @@ function ClientDashboard() {
                     </Avatar>
                     <div>
                       <CardTitle className="text-lg">Alex Thompson</CardTitle>
-                      <p className="text-sm text-muted-foreground">Full Stack Developer</p>
+                      <CardDescription>Full Stack Developer</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
@@ -302,9 +437,9 @@ function ClientDashboard() {
                     <Badge variant="outline">Node.js</Badge>
                     <Badge variant="outline">TypeScript</Badge>
                   </div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">5 years experience</span>
+                  <div className="flex items-center gap-2 mb-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">18 projects completed</span>
                   </div>
                   <div className="flex items-center gap-2 mb-4">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -318,15 +453,19 @@ function ClientDashboard() {
                           className={`h-4 w-4 ${star <= 4.5 ? "fill-primary text-primary" : "fill-muted text-muted"}`}
                         />
                       ))}
+                      <span className="ml-1 text-sm">4.5</span>
                     </div>
                     <Button size="sm">
-                      Contact <ArrowUpRight className="ml-1 h-3 w-3" />
+                      Invite <ArrowUpRight className="ml-1 h-3 w-3" />
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
+        </TabsContent>
+        <TabsContent value="activity" className="mt-4">
+          <RecentActivityList userType="client" />
         </TabsContent>
       </Tabs>
     </>

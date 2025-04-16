@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState } from "react"
@@ -8,7 +9,7 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import {Toaster} from "@/components/ui/sonner"
+// import {Toaster} from "@/components/ui/sonner"
 
 import { BasicInfoForm } from "./registeration/basic-form-info"
 import {ClientInfoForm} from "./registeration/client-info-form"

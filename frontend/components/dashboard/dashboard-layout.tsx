@@ -7,7 +7,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BarChart3, Briefcase, Calendar, CreditCard, Home, MessageSquare, Settings, User, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { UserNav } from "@/components/dashboard/user-nav"
+// import { UserNav } from "@/components/dashboard/user-nav"
 import {
   Sidebar,
   SidebarContent,
@@ -17,14 +17,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
-  SidebarTrigger,
+  // SidebarTrigger,
+  // SidebarTrigger,
 } from "@/components/ui/sidebar"
 
 // import { ThemeToggle } from "@/components/theme-toggle"
 // ThemeToggle
 // import { ThemeToggle } from "@/components/theme-toggle"
 import { Badge } from "@/components/ui/badge"
-import { ThemeToggle } from "./theme-toggle"
+// import { ThemeToggle } from "./theme-toggle"
 
 // Mock user data - in a real app, this would come from your auth system
 const currentUser = {
@@ -39,7 +40,7 @@ const currentUser = {
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [userType, setUserType] = useState<"freelancer" | "client">(currentUser.userType)
+  const [userType] = useState<"freelancer" | "client">(currentUser.userType)
 
   // Navigation items based on user type
   const navItems = [
@@ -94,38 +95,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
-          <SidebarTrigger />
-          <div className="w-full flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <Briefcase className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold">FreelanceHub</span>
-              {userType === "freelancer" ? (
-                <Badge variant="outline" className="ml-2">
-                  Freelancer
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="ml-2">
-                  Client
-                </Badge>
-              )}
-            </Link>
-            <div className="flex items-center gap-4">
-              <ThemeToggle />
-              <UserNav user={currentUser} onUserTypeChange={setUserType} />
-            </div>
-          </div>
-        </header>
+      
         <div className="flex flex-1">
           <Sidebar>
-            <SidebarHeader className="flex h-14 items-center border-b px-6">
-              <Link href="/" className="flex items-center gap-2">
+            <SidebarHeader className="flex h-14 items-center border-b px-6 mt-20">
+              {/* <Link href="/" className="flex items-center gap-2">
                 <Briefcase className="h-5 w-5 text-primary" />
                 <span className="font-semibold">FreelanceHub</span>
-              </Link>
+              </Link> */}
+            
             </SidebarHeader>
             <SidebarContent>
-              <SidebarMenu>
+              <SidebarMenu className="">
                 {navItems.map((item) => (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={pathname === item.href} tooltip={item.title}>
