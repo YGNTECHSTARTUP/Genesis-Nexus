@@ -1,9 +1,25 @@
+"use client"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "./mode-toggle"
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
-
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs"
+import { useEffect } from "react"
+import { v5 as uuidv5 } from "uuid";
 export default function Header() {
+  const { user } = useUser();
+  const userID = user?.id || "";
+  const NAMESPACE = "10b6a5f6-eae3-4d2e-912b-cc6e0a5f5a7b"; // your fixed namespace UUID
+
+function convertClerkIdToUuid(clerkId: string): string {
+  return uuidv5(clerkId, NAMESPACE);
+}
+const uuid = convertClerkIdToUuid(userID);
+useEffect(()=>{
+localStorage.setItem("userId", uuid)
+},[])
+const user1=localStorage.getItem("userId");
+console.log(user1);
+
   return (
     <header className="w-full px-4 lg:px-6 h-20 flex items-center justify-between border-b border-border/40 backdrop-blur-md bg-background/80 fixed top-0 z-50 mb-10">
       <Link href="/" className="flex items-center space-x-2">

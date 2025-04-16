@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 
 import type { RegistrationFormData } from "../registeration-form"
+// import { Label } from "@/components/ui/label"
 
 const freelancerTypes = [
   { label: "Developer", value: "developer" },
@@ -457,7 +458,7 @@ export function FreelancerInfoForm({ form }: FreelancerInfoFormProps) {
                 </Command>
               </PopoverContent>
             </Popover>
-            <FormDescription>Select the tools and software you're proficient with</FormDescription>
+            <FormDescription>Select the tools and software you&apos;re proficient with</FormDescription>
             <FormMessage />
           </FormItem>
         )}

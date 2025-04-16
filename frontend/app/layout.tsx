@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from './home/Header'
+import { Toaster } from "@/components/ui/sonner"
 
 // import { useEffect } from "react";
 import {
@@ -46,8 +47,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
        <Header/>
+       
         {children}
-     
+     <Toaster/>
       </body>
       
     </html>
