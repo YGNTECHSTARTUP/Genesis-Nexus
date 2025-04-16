@@ -14,6 +14,8 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  
+  Tooltip,
   Pie,
   PieChart,
   XAxis,
@@ -395,7 +397,7 @@ export default function AnalyticsOverview() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tickMargin={10} />
                   <YAxis axisLine={false} tickLine={false} tickMargin={10} tickFormatter={(value) => `$${value}`} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Tooltip content={<ChartTooltipContent />} />
                   <Area
                     type="monotone"
                     dataKey="amount"
@@ -480,7 +482,7 @@ export default function AnalyticsOverview() {
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }: { name: string; percent: number }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     >
                       {(userType === "freelancer" ? freelancerData.projectTypes : clientData.projectTypes).map(
                         (entry, index) => (
