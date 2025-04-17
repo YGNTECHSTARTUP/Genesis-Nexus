@@ -147,10 +147,10 @@ export default function ProjectsDashboard() {
             {clientId ? "Projects for this client" : "Browse all available projects"}
           </p>
         </div>
-        <Button className="w-full md:w-auto">
+       <a href='/post-project'> <Button className="w-full md:w-auto">
           <Briefcase className="mr-2 h-4 w-4" />
           Create New Project
-        </Button>
+        </Button></a>
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row">
@@ -238,9 +238,9 @@ export default function ProjectsDashboard() {
                     )}
                   </CardContent>
                   <CardFooter className="flex justify-between border-t bg-muted/50 px-6 py-3">
-                    <Button variant="outline" size="sm">
-                      View Details
-                    </Button>
+                   <a href='/request'> <Button variant="outline" size="sm">
+                     Request
+                    </Button></a>
                     <Button
                       size="sm"
                       asChild
