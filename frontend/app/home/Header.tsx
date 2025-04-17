@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ModeToggle } from "./mode-toggle"
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton, useUser } from "@clerk/nextjs"
-import { useEffect } from "react"
+// import { useEffect } from "react"
 import { v5 as uuidv5 } from "uuid";
 export default function Header() {
   const { user } = useUser();
@@ -35,10 +35,10 @@ console.log(user1);
       </Link>
       <nav className="hidden md:flex space-x-6">
         <Link
-          href="#features"
+          href="/project"
           className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
-          Features
+          Projects
         </Link>
         <Link
           href="#demo"
