@@ -73,8 +73,8 @@ declare module "hono"  {
   
       const skillsByUser: Record<string, string[]> = {};
       skillMap.forEach(({ userId, skillName }) => {
-        if (!userId) return; // skip null or undefined
-      
+        if (!userId) return;
+  
         if (!skillsByUser[userId]) skillsByUser[userId] = [];
         skillsByUser[userId].push(skillName as '');
       });
@@ -83,21 +83,30 @@ declare module "hono"  {
       const freelancer = freelancerUsers.map((user) => {
         const details = freelancerData.find((f) => f.userId === user.id);
         return {
+          userId: user.id,
           name: user.fullName,
           skills: skillsByUser[user.id] || [],
           experience: `${details?.experienceYears || 0} years`,
         };
       });
   
-      // Step 4: Generate prompt
+      // Optionally limit the number of freelancers sent to AI
+      const trimmedFreelancer = freelancer.slice(0, 30); // you can increase or decrease this
+  
+      // Step 4: Generate AI prompt
       const prompt = `
   You are an expert recruiter AI. A client provided the following requirement:
   "${requirement}"
   
   Here is a list of freelancers:
-  ${freelancer.map((f, i) =>
-    `${i + 1}. Name: ${f.name}\n   Skills: ${f.skills.join(', ') || 'None'}\n   Experience: ${f.experience}`
-  ).join('\n\n')}
+  ${trimmedFreelancer
+    .map(
+      (f, i) => `${i + 1}. Name: ${f.name}
+     Skills: ${f.skills.join(', ') || 'None'}
+     Experience: ${f.experience}
+     ID: ${f.userId}`
+    )
+    .join('\n\n')}
   
   Based on the above, analyze and return only the top 3 most suitable freelancers as a valid JSON array in the following format:
   
@@ -109,7 +118,7 @@ declare module "hono"  {
     ...
   ]
   
-  Only return the JSON — do not add any commentary or explanation outside the JSON array.
+  Only return the JSON — do not include any explanation or markdown. Do not include extra commentary.
   `;
   
       // Step 5: Run AI
@@ -120,17 +129,17 @@ declare module "hono"  {
       const rawText = await parseAIResponse(result);
   
       try {
-        const parsed = JSON.parse(rawText);
+        const parsed = typeof rawText === 'string' ? JSON.parse(rawText) : rawText;
         return c.json({ topFreelancers: parsed });
       } catch (err) {
         return c.json({ error: 'AI did not return valid JSON', raw: rawText }, 500);
       }
-  
     } catch (err: any) {
       console.error('AI error:', err);
       return c.json({ error: 'AI call failed', details: err.message || err.toString() }, 500);
     }
   });
+  
   
   
   // Helper function (renamed)
@@ -639,6 +648,93 @@ Never use markdown, code blocks, or extra quotation marks.`,
     }, 500);
   }
 });
+ais.post('/submit-codes', async (c) => {
+  const ai = c.get('AIs'); // use correct binding
+  const { githubUrl } = await c.req.json();
+
+  // Convert GitHub URL to raw content
+  const rawUrl = convertToRawGitHubUrl(githubUrl);
+  const codeRes = await fetch(rawUrl);
+  if (!codeRes.ok) return c.json({ error: 'Failed to fetch code' }, 400);
+
+  // Get the code from the GitHub URL
+  const code = await codeRes.text();
+
+  // Step 1: Review code
+  const reviewResult = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
+    messages: [
+      {
+        role: 'system',
+        content: 'You are a code review AI. Score code from 0–100 based on quality and best practices.',
+      },
+      {
+        role: 'user',
+        content: `Review this code:\n\n${code}`,
+      },
+    ],
+  });
+
+  let reviewText = '';
+  if (reviewResult instanceof ReadableStream) {
+    reviewText = await streamToText(reviewResult);
+  } else if (reviewResult?.response) {
+    reviewText = reviewResult.response;
+  } else if (typeof reviewResult === 'string') {
+    reviewText = reviewResult;
+  } else {
+    reviewText = JSON.stringify(reviewResult);
+  }
+
+  // Extract score from review
+  const score = extractScore(reviewText);
+
+  // Step 2: Generate verification questions
+  const questionPrompt = `
+    You are a code reviewer AI trying to verify if someone actually wrote a piece of code. The code is:
+
+    ${code}
+
+    Now, generate 5 short, technical questions that only the actual author of the code would be able to answer easily. Output as a plain JSON array like:
+
+    [
+      "Question 1?",
+      "Question 2?",
+      "Question 3?",
+      "Question 4?",
+      "Question 5?"
+    ]
+  `;
+
+  const questionResult = await ai.run('@cf/meta/llama-2-7b-chat-int8', {
+    messages: [
+      { role: 'user', content: questionPrompt },
+    ],
+  });
+
+  let questions: string[] = [];
+
+  try {
+    const questionText = typeof questionResult === 'string' ? questionResult : questionResult?.response || '';
+    questions = JSON.parse(questionText);
+  } catch (err) {
+    // Fallback questions in case AI doesn't return valid JSON
+    questions = [
+      "What is the purpose of the main function in this code?",
+      "Why did you choose to use a specific loop structure (e.g., for, while) in your implementation?",
+      "Explain how error handling is implemented in the code.",
+      "Why did you structure your functions and file layout the way you did?",
+      "What would break if you removed or changed the logic inside the helper function named ___?"
+    ];
+  }
+
+  // Return the response with code score, review, and verification questions
+  return c.json({
+    score,
+    review: reviewText,
+    verificationQuestions: questions,
+  });
+});
+
 
 
 
