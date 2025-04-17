@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental:{
+    optimizeCss:false,
+  }
 };
 
 export default nextConfig;
