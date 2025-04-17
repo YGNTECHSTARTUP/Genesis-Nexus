@@ -14,10 +14,15 @@ function convertClerkIdToUuid(clerkId: string): string {
   return uuidv5(clerkId, NAMESPACE);
 }
 const uuid = convertClerkIdToUuid(userID);
-useEffect(()=>{
-localStorage.setItem("userId", uuid)
-},[])
-const user1=localStorage.getItem("userId");
+let user1=""
+if (typeof window !== 'undefined') {
+  
+    localStorage.setItem("userId", uuid)
+   
+    user1=localStorage.getItem("userId")||"";
+  // Use token safely
+}
+
 console.log(user1);
 
   return (
