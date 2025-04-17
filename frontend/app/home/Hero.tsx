@@ -28,9 +28,11 @@ export default function Hero() {
             >
               Join as Freelancer
             </Button>
+            <a href="/browse">
             <Button size="lg" variant="outline" className="border-purple-500/20 hover:bg-purple-500/10">
               Hire Talent <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+            </a>
           </div>
           <div className="flex items-center justify-center mt-8 space-x-6">
             <div className="flex -space-x-2">

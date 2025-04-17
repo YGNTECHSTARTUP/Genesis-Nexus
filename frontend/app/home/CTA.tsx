@@ -14,12 +14,12 @@ export default function CTA() {
             provides the secure, efficient platform you need to succeed in the decentralized economy.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
+            <a href='/register'><Button
               size="lg"
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >
               Create Your Account
-            </Button>
+            </Button></a>
             <Button size="lg" variant="outline" className="border-purple-500/20 hover:bg-purple-500/10">
               Schedule a Demo <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

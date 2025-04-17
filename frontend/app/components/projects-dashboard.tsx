@@ -241,6 +241,9 @@ export default function ProjectsDashboard() {
                    <a href='/request'> <Button variant="outline" size="sm">
                      Request
                     </Button></a>
+                   <a href='/code-review'> <Button variant="outline" size="sm">
+                     Code Review
+                    </Button></a>
                     <Button
                       size="sm"
                       asChild
